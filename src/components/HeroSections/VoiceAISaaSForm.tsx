@@ -1,5 +1,6 @@
 'use client';
 
+import 'react-phone-input-2/lib/style.css';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,6 +20,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabaseClient';
+import axios from 'axios';
 
 export default function VoiceAISaaSForm() {
   const [showCustomForm, setShowCustomForm] = useState(false);
@@ -26,6 +30,9 @@ export default function VoiceAISaaSForm() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -43,72 +50,106 @@ export default function VoiceAISaaSForm() {
     return true;
   };
 
-  const handleSubmit = async (type: 'custom' | 'demo') => {
-    const endpoint = type === 'custom' ? '/api/contact-custom' : '/api/contact-demo';
-    const payload =
-      type === 'custom'
-        ? {
-            industry: formData.industry,
-            task: formData.task,
-            volume: formData.volume,
-            about: formData.about,
-            name: formData.name,
-            email: formData.email,
-            phone: formData.phone,
-          }
-        : {
-            name: formData.demo_name,
-            email: formData.demo_email,
-            phone: formData.demo_phone,
-          };
-
+  const handleSubmit = async () => {
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      setIsLoading(true);
+
+      const { error } = await supabase.from('voice_ai_leads').insert([
+        {
+          industry: formData.industry,
+          task: formData.task,
+          volume: formData.volume,
+          about: formData.about,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
         },
-        body: JSON.stringify(payload),
+      ]);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Submission Successful',
+        description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
       });
-      const result = await res.json();
-      if (res.ok) {
-        alert('Submitted successfully!');
-        setShowCustomForm(false);
-        setShowDemoForm(false);
-        setStep(1);
-        setFormData({});
-      } else {
-        alert(result.message || 'Something went wrong');
-      }
-    } catch (err) {
-      alert('Network error');
+
+      // optionally reset form here
+      setFormData({});
+      setStep(1);
+      setShowCustomForm(false);
+    } catch (err: any) {
+      toast({
+        title: 'Submission Failed',
+        description: err.message || 'Something went wrong. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoCallSubmit = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await axios.post('/api/make-call', {
+        from_number: '+16812011361',
+        to_number: formData.demo_phone,
+        override_agent_id: 'agent_df655e2fd4ec6291863068597c',
+        metadata: {
+          name: formData.demo_name,
+        },
+      });
+
+      toast({
+        title: 'Incoming AI call',
+        description: 'Watch your phone — your personalized demo is about to begin!',
+      });
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.error?.message || error.message || 'An unexpected error occurred';
+      toast({
+        title: 'Failed to send call',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center p-4 space-y-6">
       <div className="flex flex-col md:flex-row gap-4">
-        <Button onClick={() => setShowCustomForm(true)}>Get your custom voice AI solutions</Button>
+        <Button onClick={() => setShowCustomForm(true)}>
+          Request Your Custom Setup - 24hr Response
+        </Button>
         <Button onClick={() => setShowDemoForm(true)} variant="outline">
-          Try demo call
+          Experience AI Calling
         </Button>
       </div>
 
-      {/* Custom Voice AI Form */}
       <Dialog
         open={showCustomForm}
         onOpenChange={(open) => {
           setShowCustomForm(open);
           if (!open) {
             setStep(1);
-            setFormData({});
-            setStep1Error('');
           }
         }}
       >
         <DialogContent className="max-w-lg w-full">
           <DialogHeader>
-            <DialogTitle>Get Custom Voice AI Solution</DialogTitle>
+            <DialogTitle className="text-2xl">Get Custom Voice AI Solution</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Automate calls and save 20+ hours weekly with personalized AI voice agents
+            </p>
+            <div className="relative w-full h-1 bg-gray-300 rounded-full mb-6">
+              <div
+                className="absolute h-1 bg-primary rounded-full transition-all duration-300"
+                style={{ width: `${step === 1 ? '50%' : '100%'}` }}
+              />
+            </div>
           </DialogHeader>
 
           {step === 1 ? (
@@ -155,18 +196,26 @@ export default function VoiceAISaaSForm() {
               </div>
               <div>
                 <Label>Tell us more about your business (optional)</Label>
-                <Textarea onChange={(e) => handleInputChange('about', e.target.value)} />
+                <Textarea
+                  onChange={(e) => handleInputChange('about', e.target.value)}
+                  placeholder="Describe your specific needs, challenges or questions"
+                />
               </div>
               {step1Error && <p className="text-red-500 text-sm">{step1Error}</p>}
+
               <DialogFooter>
-                <Button
-                  onClick={() => {
-                    if (validateStep1()) setStep(2);
-                  }}
-                  className="w-full"
-                >
-                  Next
-                </Button>
+                <div className="flex flex-col gap-2 w-full">
+                  <Button
+                    onClick={() => {
+                      if (validateStep1()) setStep(2);
+                    }}
+                  >
+                    See My Custom Solutions
+                  </Button>
+                  <p className="text-xs text-center text-muted-foreground w-full">
+                    Join 200+ businesses already saving time with our voice AI
+                  </p>
+                </div>
               </DialogFooter>
             </div>
           ) : (
@@ -184,11 +233,11 @@ export default function VoiceAISaaSForm() {
                 <Input type="tel" onChange={(e) => handleInputChange('phone', e.target.value)} />
               </div>
               <DialogFooter>
-                <div className="flex flex-col gap-2">
-                  <Button onClick={() => handleSubmit('custom')}>Submit</Button>
+                <div className="flex flex-col gap-2 w-full">
+                  <Button onClick={() => handleSubmit()}>Submit</Button>
                   <p className="text-xs text-center text-muted-foreground">
-                    We'll email you with details about how our voice agents can help your specific
-                    business.
+                    Your personal AI consultant will contact you within 24 hours with your custom
+                    solution
                   </p>
                 </div>
               </DialogFooter>
@@ -209,7 +258,11 @@ export default function VoiceAISaaSForm() {
       >
         <DialogContent className="max-w-md w-full">
           <DialogHeader>
-            <DialogTitle>Try Demo Call</DialogTitle>
+            <DialogTitle className="text-2xl">Experience AI Calling - Live Demo</DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Hear exactly how our intelligent voice AI will sound to your customers with a
+              personalized demo call.
+            </p>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -217,20 +270,19 @@ export default function VoiceAISaaSForm() {
               <Input onChange={(e) => handleInputChange('demo_name', e.target.value)} />
             </div>
             <div>
-              <Label>Email *</Label>
-              <Input
-                type="email"
-                onChange={(e) => handleInputChange('demo_email', e.target.value)}
-              />
-            </div>
-            <div>
               <Label>Phone *</Label>
               <Input type="tel" onChange={(e) => handleInputChange('demo_phone', e.target.value)} />
             </div>
             <DialogFooter>
-              <Button onClick={() => handleSubmit('demo')} className="w-full">
-                Submit
-              </Button>
+              <div className="flex flex-col gap-2 w-full">
+                <Button onClick={handleDemoCallSubmit} className="w-full" disabled={isLoading}>
+                  {isLoading ? 'Sending...' : 'Send Me A Demo Call'}
+                </Button>
+
+                <p className="text-xs text-center text-muted-foreground">
+                  You'll receive a call within a minutes
+                </p>
+              </div>
             </DialogFooter>
           </div>
         </DialogContent>

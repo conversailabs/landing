@@ -393,13 +393,6 @@ const UseCasesSection = () => {
                   Experience our AI phone assistant that handles calls, schedules appointments, and
                   answers questions.
                 </p>
-                <button
-                  onClick={handleCallClick}
-                  className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-full transition-colors duration-200 shadow-xl text-base font-medium transform hover:scale-105"
-                >
-                  <Phone size={18} />
-                  CALL NOW
-                </button>
 
                 {/* Play demo audio button - centered */}
                 {!isInCall && (
@@ -546,7 +539,7 @@ const UseCasesSection = () => {
                   currentUseCase.title === useCase.title
                     ? 'bg-accent-foreground text-white'
                     : useCase.title === 'Receptionist'
-                    ? 'bg-white border-green-400 border-2'
+                    ? 'bg-white border-2'
                     : 'bg-white'
                 }`}
                 onClick={() => handleUseCaseClick(useCase)}
@@ -557,19 +550,11 @@ const UseCasesSection = () => {
                     currentUseCase.title === useCase.title
                       ? 'text-white'
                       : useCase.title === 'Receptionist'
-                      ? 'text-green-500'
+                      ? ''
                       : 'text-muted-foreground'
                   }`}
                 />
                 <h3 className="text-sm font-semibold text-center">{useCase.title}</h3>
-
-                {/* Phone indicator for Receptionist */}
-                {useCase.title === 'Receptionist' && (
-                  <div className="flex items-center mt-1 text-green-600">
-                    <Phone size={12} className="mr-1" />
-                    <span className="text-xs">Live call</span>
-                  </div>
-                )}
               </div>
             ))}
           </div>

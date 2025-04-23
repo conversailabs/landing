@@ -229,55 +229,6 @@ const HeroSection: React.FC = () => {
     document.head.appendChild(style);
   }, []);
 
-  // Render placeholders during server rendering
-  const renderCountdown = () => {
-    if (!isClient) {
-      // During server render and initial client render, show placeholders
-      return (
-        <div className="flex space-x-3 md:space-x-4 text-center mobile-countdown">
-          <div className="flex flex-col mobile-countdown-item">
-            <span className="text-2xl md:text-2xl font-bold text-primary">--</span>
-            <span className="text-xs md:text-sm">Days</span>
-          </div>
-          <div className="flex flex-col mobile-countdown-item">
-            <span className="text-2xl md:text-2xl font-bold text-primary">--</span>
-            <span className="text-xs md:text-sm">Hours</span>
-          </div>
-          <div className="flex flex-col mobile-countdown-item">
-            <span className="text-2xl md:text-2xl font-bold text-primary">--</span>
-            <span className="text-xs md:text-sm">Minutes</span>
-          </div>
-          <div className="flex flex-col mobile-countdown-item">
-            <span className="text-2xl md:text-2xl font-bold text-primary">--</span>
-            <span className="text-xs md:text-sm">Seconds</span>
-          </div>
-        </div>
-      );
-    }
-
-    // Once client-side render is confirmed, show actual values
-    return (
-      <div className="flex space-x-3 md:space-x-4 text-center mobile-countdown">
-        <div className="flex flex-col mobile-countdown-item">
-          <span className="text-2xl md:text-2xl font-bold text-primary">{timeLeft.days}</span>
-          <span className="text-xs md:text-sm">Days</span>
-        </div>
-        <div className="flex flex-col mobile-countdown-item">
-          <span className="text-2xl md:text-2xl font-bold text-primary">{timeLeft.hours}</span>
-          <span className="text-xs md:text-sm">Hours</span>
-        </div>
-        <div className="flex flex-col mobile-countdown-item">
-          <span className="text-2xl md:text-2xl font-bold text-primary">{timeLeft.minutes}</span>
-          <span className="text-xs md:text-sm">Minutes</span>
-        </div>
-        <div className="flex flex-col mobile-countdown-item">
-          <span className="text-2xl md:text-2xl font-bold text-primary">{timeLeft.seconds}</span>
-          <span className="text-xs md:text-sm">Seconds</span>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="relative min-h-[90vh] py-6 md:py-8 overflow-hidden flex flex-col justify-center">
       <div className="container mx-auto px-5 md:px-4 text-center relative z-10 flex-grow flex flex-col justify-center mobile-container">
@@ -301,17 +252,10 @@ const HeroSection: React.FC = () => {
             >
               {currentUseCase.description}
             </p>
-            <VoiceAISaaSForm />
           </div>
         </div>
-        <FloatingIconButton onClick={toggleForm} isOpen={showForm} />
-
-        {/* Early Access Form */}
-        <EarlyAccessForm
-          isOpen={showForm}
-          onClose={() => setShowForm(false)}
-          areaOfInterest={currentUseCase.title.toLowerCase()}
-        />
+        <div className="mt-4"></div>
+        <VoiceAISaaSForm />
       </div>
 
       {/* Moving Wave Animation - Fixed at bottom but only within hero section */}

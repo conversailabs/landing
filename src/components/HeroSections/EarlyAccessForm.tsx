@@ -12,10 +12,10 @@ interface EarlyAccessFormProps {
   isOpen?: boolean;
 }
 
-const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({ 
-  areaOfInterest = 'receptionist', 
-  onClose, 
-  isOpen = false
+const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({
+  areaOfInterest = 'receptionist',
+  onClose,
+  isOpen = false,
 }) => {
   const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
@@ -27,16 +27,16 @@ const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({
   // Detect IP and country code on mount
   useEffect(() => {
     if (!isOpen) return; // Only fetch when form is opened
-    
+
     // Auto-detect IP address
     fetch('https://api.ipify.org?format=json')
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         setIpAddress(data.ip);
         // Get country code based on IP
         fetch(`https://ipapi.co/${data.ip}/json/`)
-          .then(response => response.json())
-          .then(locationData => {
+          .then((response) => response.json())
+          .then((locationData) => {
             setCountryCode(locationData.country_calling_code || '+1'); // Default to +1 if not found
           })
           .catch(() => {
@@ -55,7 +55,7 @@ const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     try {
       // Format the data to match the WaitlistFormData interface
       const formData: WaitlistFormData = {
@@ -64,15 +64,15 @@ const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({
         phoneNumber: `${countryCode}${phone}`,
         areaOfInterest,
         ipAddress,
-        countryCode: countryCode.replace('+', '') // Remove + from country code if present
+        countryCode: countryCode.replace('+', ''), // Remove + from country code if present
       };
-      
+
       // Submit to Supabase using the imported function
       const result = await submitWaitlistForm(formData);
-      
+
       // The function always returns success:true, so we proceed
       alert("Success! You've been added to our early access list.");
-      
+
       // Reset form
       setName('');
       setEmail('');
@@ -82,7 +82,7 @@ const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({
       // Even if there's an error, we know from the comments that
       // the data may still be getting through
       alert("Success! You've been added to our early access list.");
-      
+
       // Reset form
       setName('');
       setEmail('');
@@ -96,22 +96,25 @@ const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4" onClick={onClose}>
-      <div 
+    <div
+      className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
         className="bg-background border border-border rounded-lg shadow-lg w-full max-w-sm p-4 animate-in fade-in zoom-in duration-300"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold">Get Early Access</h3>
-          <button 
-            type="button" 
-            className="text-muted-foreground hover:text-foreground" 
+          <button
+            type="button"
+            className="text-muted-foreground hover:text-foreground"
             onClick={onClose}
           >
             <X size={18} />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Input
@@ -152,11 +155,7 @@ const EarlyAccessForm: React.FC<EarlyAccessFormProps> = ({
             <input type="hidden" name="countryCode" value={countryCode} />
             <input type="hidden" name="ipAddress" value={ipAddress} />
           </div>
-          <Button 
-            type="submit" 
-            className="w-full" 
-            disabled={isSubmitting}
-          >
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Processing...' : 'Submit'}
           </Button>
           <p className="text-xs text-muted-foreground text-center">

@@ -3,12 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from '@/components/ui/select';
 import {
   Dialog,
@@ -16,8 +16,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose
-} from "@/components/ui/dialog";
+  DialogClose,
+} from '@/components/ui/dialog';
 import {
   Card,
   CardContent,
@@ -25,9 +25,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Label } from "@/components/ui/label";
+} from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { submitWaitlistForm } from '@/lib/supabaseClient';
 import { Phone, X, ChevronDown, Check, Search, Globe } from 'lucide-react';
@@ -61,21 +61,22 @@ const WaitlistSection = () => {
   useEffect(() => {
     try {
       setIsLoading(true);
-      
+
       // Transform the data to include flag URLs
       const formattedCountries = countriesData
         .map((country: any) => ({
           name: country.name,
           code: country.code,
           dial_code: country.dial_code,
-          flag: `https://flagcdn.com/${country.code.toLowerCase()}.svg` // Generate flag URL from country code
+          flag: `https://flagcdn.com/${country.code.toLowerCase()}.svg`, // Generate flag URL from country code
         }))
         .sort((a: Country, b: Country) => a.name.localeCompare(b.name));
-      
+
       setCountries(formattedCountries);
-      
+
       // Set default country (US)
-      const defaultCountry = formattedCountries.find((c: Country) => c.code === 'US') || formattedCountries[0];
+      const defaultCountry =
+        formattedCountries.find((c: Country) => c.code === 'US') || formattedCountries[0];
       setSelectedCountry(defaultCountry);
       setIsLoading(false);
     } catch (error) {
@@ -83,7 +84,12 @@ const WaitlistSection = () => {
       // Fallback to a minimal set of countries if data processing fails
       const fallbackCountries = [
         { name: 'United States', code: 'US', dial_code: '+1', flag: 'https://flagcdn.com/us.svg' },
-        { name: 'United Kingdom', code: 'GB', dial_code: '+44', flag: 'https://flagcdn.com/gb.svg' },
+        {
+          name: 'United Kingdom',
+          code: 'GB',
+          dial_code: '+44',
+          flag: 'https://flagcdn.com/gb.svg',
+        },
         { name: 'Canada', code: 'CA', dial_code: '+1', flag: 'https://flagcdn.com/ca.svg' },
         { name: 'Australia', code: 'AU', dial_code: '+61', flag: 'https://flagcdn.com/au.svg' },
         { name: 'India', code: 'IN', dial_code: '+91', flag: 'https://flagcdn.com/in.svg' },
@@ -112,13 +118,15 @@ const WaitlistSection = () => {
   }, []);
 
   // Filter countries based on search query
-  const filteredCountries = searchQuery.trim() === ''
-    ? countries
-    : countries.filter(country => 
-        country.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        country.dial_code.includes(searchQuery) ||
-        country.code.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+  const filteredCountries =
+    searchQuery.trim() === ''
+      ? countries
+      : countries.filter(
+          (country) =>
+            country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            country.dial_code.includes(searchQuery) ||
+            country.code.toLowerCase().includes(searchQuery.toLowerCase()),
+        );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,27 +167,29 @@ const WaitlistSection = () => {
         title: 'Processing',
         description: 'Submitting your information...',
       });
-      
+
       setIsSubmitting(true);
-      
+
       // Format the full number with country code
-      const formattedPhone = `${selectedCountry.dial_code}${phoneDigits.startsWith('0') ? phoneDigits.substring(1) : phoneDigits}`;
-      
+      const formattedPhone = `${selectedCountry.dial_code}${
+        phoneDigits.startsWith('0') ? phoneDigits.substring(1) : phoneDigits
+      }`;
+
       const result = await submitWaitlistForm({
         fullName,
         companyEmail,
         phoneNumber: formattedPhone,
         areaOfInterest,
         ipAddress,
-        countryCode: selectedCountry.code
+        countryCode: selectedCountry.code,
       });
-      
+
       // Always show success since we know it works behind the scenes
       toast({
         title: 'Success',
         description: 'You have joined the waitlist!',
       });
-      
+
       // Reset form
       setFullName('');
       setCompanyEmail('');
@@ -192,7 +202,7 @@ const WaitlistSection = () => {
         title: 'Success',
         description: 'You have joined the waitlist!',
       });
-      
+
       // Reset form
       setFullName('');
       setCompanyEmail('');
@@ -204,16 +214,12 @@ const WaitlistSection = () => {
   };
 
   return (
-    <section
-      id="waitlist"
-      className="py-16 bg-background w-full"
-    >
+    <section id="waitlist" className="py-16 bg-background w-full">
       <div className="container mx-auto px-4">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mb-4">Get Early Access</h2>
-          
         </div>
-        
+
         <Card className="max-w-md mx-auto shadow-sm">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -231,7 +237,7 @@ const WaitlistSection = () => {
                     className="bg-background"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Work Email</Label>
                   <Input
@@ -245,7 +251,7 @@ const WaitlistSection = () => {
                     className="bg-background"
                   />
                 </div>
-                
+
                 {/* Phone number with improved country selector */}
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
@@ -268,7 +274,7 @@ const WaitlistSection = () => {
                           ) : selectedCountry ? (
                             <>
                               <div className="flex items-center">
-                                <img 
+                                <img
                                   src={selectedCountry.flag}
                                   alt={`${selectedCountry.name} flag`}
                                   className="h-4 w-6 object-cover mr-1"
@@ -277,7 +283,10 @@ const WaitlistSection = () => {
                                   {selectedCountry.dial_code}
                                 </span>
                               </div>
-                              <ChevronDown size={14} className="text-muted-foreground ml-1 flex-shrink-0" />
+                              <ChevronDown
+                                size={14}
+                                className="text-muted-foreground ml-1 flex-shrink-0"
+                              />
                             </>
                           ) : (
                             <span className="text-muted-foreground flex items-center">
@@ -287,7 +296,7 @@ const WaitlistSection = () => {
                           )}
                         </Button>
                       </div>
-                      
+
                       <DialogContent className="sm:max-w-md">
                         <DialogHeader>
                           <DialogTitle>Select Country Code</DialogTitle>
@@ -295,9 +304,12 @@ const WaitlistSection = () => {
                             Choose your country for the correct dialing code
                           </DialogDescription>
                         </DialogHeader>
-                        
+
                         <div className="relative mb-4">
-                          <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+                          <Search
+                            size={16}
+                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
+                          />
                           <Input
                             type="text"
                             placeholder="Search countries..."
@@ -307,7 +319,7 @@ const WaitlistSection = () => {
                             autoFocus
                           />
                         </div>
-                        
+
                         <ScrollArea className="h-72">
                           <div className="grid gap-1">
                             {filteredCountries.length > 0 ? (
@@ -323,7 +335,7 @@ const WaitlistSection = () => {
                                   }}
                                 >
                                   <div className="flex items-center w-full">
-                                    <img 
+                                    <img
                                       src={country.flag}
                                       alt={`${country.name} flag`}
                                       className="h-4 w-6 object-cover mr-2"
@@ -335,7 +347,10 @@ const WaitlistSection = () => {
                                       {country.dial_code}
                                     </span>
                                     {selectedCountry?.code === country.code && (
-                                      <Check size={16} className="ml-2 text-primary flex-shrink-0" />
+                                      <Check
+                                        size={16}
+                                        className="ml-2 text-primary flex-shrink-0"
+                                      />
                                     )}
                                   </div>
                                 </Button>
@@ -347,13 +362,15 @@ const WaitlistSection = () => {
                             )}
                           </div>
                         </ScrollArea>
-                        
+
                         <DialogClose asChild>
-                          <Button variant="outline" className="mt-2">Close</Button>
+                          <Button variant="outline" className="mt-2">
+                            Close
+                          </Button>
                         </DialogClose>
                       </DialogContent>
                     </Dialog>
-                    
+
                     {/* Phone number input */}
                     <div className="relative flex-1">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -371,41 +388,39 @@ const WaitlistSection = () => {
                       />
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground">We'll send important updates about your early access</p>
+                  <p className="text-xs text-muted-foreground">
+                    We'll send important updates about your early access
+                  </p>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="interest">Area of Interest</Label>
-                  <Select onValueChange={setAreaOfInterest} value={areaOfInterest} disabled={isSubmitting}>
+                  <Select
+                    onValueChange={setAreaOfInterest}
+                    value={areaOfInterest}
+                    disabled={isSubmitting}
+                  >
                     <SelectTrigger id="interest" className="w-full bg-background">
                       <SelectValue placeholder="I'm interested in..." />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="receptionist">AI Receptionist</SelectItem>
-                      <SelectItem value="appointmentSetter">
-                        Appointment Setter
-                      </SelectItem>
-                      <SelectItem value="leadQualification">
-                        Lead Qualification
-                      </SelectItem>
+                      <SelectItem value="appointmentSetter">Appointment Setter</SelectItem>
+                      <SelectItem value="leadQualification">Lead Qualification</SelectItem>
                       <SelectItem value="customerService">Customer Service</SelectItem>
                       <SelectItem value="other">Other Use Case</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
-              
-              <Button 
-                className="w-full" 
-                size="lg"
-                type="submit" 
-                disabled={isSubmitting}
-              >
+
+              <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Submitting...' : 'Get Early Access'}
               </Button>
-              
+
               <p className="text-center text-xs text-muted-foreground pt-2">
-                By joining, you'll be first to know when we launch and receive our special early access pricing
+                By joining, you'll be first to know when we launch and receive our special early
+                access pricing
               </p>
             </form>
           </CardContent>

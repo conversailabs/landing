@@ -9,7 +9,7 @@ import PricingSection from '@/components/PricingSection';
 import FaqSection from '@/components/FaqSection';
 import Footer from '@/components/Footer';
 import WaitlistSection from '@/components/WaitlistSection';
-import AboutUsPage from '@/components/about';
+import AboutUsPage from '@/components/About';
 
 export default function Home() {
   return (
@@ -20,7 +20,7 @@ export default function Home() {
       <KeyFeaturesSection />
       <PricingSection />
       <WaitlistSection />
-      <AboutUsPage/>
+      <AboutUsPage />
       <FaqSection />
       <Footer />
     </>
