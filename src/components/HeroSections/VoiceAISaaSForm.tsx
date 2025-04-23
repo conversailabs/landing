@@ -124,9 +124,7 @@ export default function VoiceAISaaSForm() {
         <Button onClick={() => setShowCustomForm(true)}>
           Request Your Custom Setup - 24hr Response
         </Button>
-        <Button onClick={() => setShowDemoForm(true)} variant="outline">
-          Experience AI Calling
-        </Button>
+        <Button onClick={() => setShowDemoForm(true)}>Experience AI Calling</Button>
       </div>
 
       <Dialog
