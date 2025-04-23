@@ -231,7 +231,7 @@ const HeroSection: React.FC = () => {
 
   return (
     <div className="relative min-h-[90vh] py-6 md:py-8 overflow-hidden flex flex-col justify-center">
-      <div className="container mx-auto px-5 md:px-4 text-center relative z-10 flex-grow flex flex-col justify-center mobile-container">
+      <div className="-mt-36 container mx-auto px-5 md:px-4 text-center relative z-10 flex-grow flex flex-col justify-center mobile-container">
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 md:mb-5">
           <span className="block mb-3 md:mb-3 mobile-title-spacing">
             Intelligent Voice AI Agents
