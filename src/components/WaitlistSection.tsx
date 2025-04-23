@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -10,424 +12,181 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogClose,
-} from '@/components/ui/dialog';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { submitWaitlistForm } from '@/lib/supabaseClient';
-import { Phone, X, ChevronDown, Check, Search, Globe } from 'lucide-react';
+import { supabase } from '@/lib/supabaseClient';
 
-// Import countries data
-import countriesData from '@/data/countries.json';
+export default function WaitlistSection() {
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [step1Error, setStep1Error] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-// Define country interface to match your JSON structure
-interface Country {
-  name: string;
-  dial_code: string;
-  code: string;
-  flag?: string; // To store generated flag URL
-}
-
-const WaitlistSection = () => {
-  const [fullName, setFullName] = useState('');
-  const [companyEmail, setCompanyEmail] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState<Country | null>(null);
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [areaOfInterest, setAreaOfInterest] = useState('');
-  const [ipAddress, setIpAddress] = useState('');
-  const [countries, setCountries] = useState<Country[]>([]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  // Process and format countries data on component mount
-  useEffect(() => {
+  const handleInputChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const validateStep1 = () => {
+    const requiredFields = ['industry', 'task', 'volume'];
+    for (const field of requiredFields) {
+      if (!formData[field]) {
+        setStep1Error('Please fill out all required fields before proceeding.');
+        return false;
+      }
+    }
+    setStep1Error('');
+    return true;
+  };
+
+  const handleSubmit = async () => {
     try {
       setIsLoading(true);
 
-      // Transform the data to include flag URLs
-      const formattedCountries = countriesData
-        .map((country: any) => ({
-          name: country.name,
-          code: country.code,
-          dial_code: country.dial_code,
-          flag: `https://flagcdn.com/${country.code.toLowerCase()}.svg`, // Generate flag URL from country code
-        }))
-        .sort((a: Country, b: Country) => a.name.localeCompare(b.name));
-
-      setCountries(formattedCountries);
-
-      // Set default country (US)
-      const defaultCountry =
-        formattedCountries.find((c: Country) => c.code === 'US') || formattedCountries[0];
-      setSelectedCountry(defaultCountry);
-      setIsLoading(false);
-    } catch (error) {
-      console.error('Error processing countries data:', error);
-      // Fallback to a minimal set of countries if data processing fails
-      const fallbackCountries = [
-        { name: 'United States', code: 'US', dial_code: '+1', flag: 'https://flagcdn.com/us.svg' },
+      const { error } = await supabase.from('voice_ai_leads').insert([
         {
-          name: 'United Kingdom',
-          code: 'GB',
-          dial_code: '+44',
-          flag: 'https://flagcdn.com/gb.svg',
+          industry: formData.industry,
+          task: formData.task,
+          volume: formData.volume,
+          about: formData.about,
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
         },
-        { name: 'Canada', code: 'CA', dial_code: '+1', flag: 'https://flagcdn.com/ca.svg' },
-        { name: 'Australia', code: 'AU', dial_code: '+61', flag: 'https://flagcdn.com/au.svg' },
-        { name: 'India', code: 'IN', dial_code: '+91', flag: 'https://flagcdn.com/in.svg' },
-      ];
-      setCountries(fallbackCountries);
-      setSelectedCountry(fallbackCountries[0]);
-      setIsLoading(false);
-    }
-  }, []);
+      ]);
 
-  // Fetch IP address on component mount
-  useEffect(() => {
-    const fetchIpAddress = async () => {
-      try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        setIpAddress(data.ip);
-      } catch (error) {
-        console.error('Error fetching IP address:', error);
-        // Use fallback if IP fetch fails
-        setIpAddress('Not available');
-      }
-    };
+      if (error) throw error;
 
-    fetchIpAddress();
-  }, []);
-
-  // Filter countries based on search query
-  const filteredCountries =
-    searchQuery.trim() === ''
-      ? countries
-      : countries.filter(
-          (country) =>
-            country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            country.dial_code.includes(searchQuery) ||
-            country.code.toLowerCase().includes(searchQuery.toLowerCase()),
-        );
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!fullName || !companyEmail || !phoneNumber || !areaOfInterest || !selectedCountry) {
       toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Please fill in all fields.',
-      });
-      return;
-    }
-
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(companyEmail)) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Please enter a valid email address.',
-      });
-      return;
-    }
-
-    // Phone validation (similar to PhoneCallForm)
-    const phoneDigits = phoneNumber.replace(/[\s()-]/g, '');
-    if (phoneDigits.length < 7 || phoneDigits.length > 15) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Please enter a valid phone number.',
-      });
-      return;
-    }
-
-    try {
-      toast({
-        title: 'Processing',
-        description: 'Submitting your information...',
-      });
-
-      setIsSubmitting(true);
-
-      // Format the full number with country code
-      const formattedPhone = `${selectedCountry.dial_code}${
-        phoneDigits.startsWith('0') ? phoneDigits.substring(1) : phoneDigits
-      }`;
-
-      const result = await submitWaitlistForm({
-        fullName,
-        companyEmail,
-        phoneNumber: formattedPhone,
-        areaOfInterest,
-        ipAddress,
-        countryCode: selectedCountry.code,
-      });
-
-      // Always show success since we know it works behind the scenes
-      toast({
-        title: 'Success',
-        description: 'You have joined the waitlist!',
+        title: 'Submission Successful',
+        description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
       });
 
       // Reset form
-      setFullName('');
-      setCompanyEmail('');
-      setPhoneNumber('');
-      setAreaOfInterest('');
-    } catch (error) {
-      // Still show success because in our testing we found it works
-      // despite console errors
+      setFormData({});
+      setStep(1);
+    } catch (err: any) {
       toast({
-        title: 'Success',
-        description: 'You have joined the waitlist!',
+        title: 'Submission Failed',
+        description: err.message || 'Something went wrong. Please try again.',
+        variant: 'destructive',
       });
-
-      // Reset form
-      setFullName('');
-      setCompanyEmail('');
-      setPhoneNumber('');
-      setAreaOfInterest('');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <section id="waitlist" className="py-16 bg-background w-full">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold mb-4">Get Early Access</h2>
+    <div className="flex flex-col items-center justify-center p-4 w-full max-w-lg mx-auto my-6">
+      <div className="bg-card border rounded-lg shadow-sm p-6 w-full">
+        <div className="mb-6">
+          <h2 className="text-2xl font-semibold mb-2">Get Custom Voice AI Solution</h2>
+          <p className="text-sm text-muted-foreground">
+            Automate calls and save 20+ hours weekly with personalized AI voice agents
+          </p>
+          <div className="relative w-full h-1 bg-gray-300 rounded-full mt-4">
+            <div
+              className="absolute h-1 bg-primary rounded-full transition-all duration-300"
+              style={{ width: `${step === 1 ? '50%' : '100%'}` }}
+            />
+          </div>
         </div>
 
-        <Card className="max-w-md mx-auto shadow-sm">
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                    className="bg-background"
-                  />
-                </div>
+        {step === 1 ? (
+          <div className="space-y-4">
+            <div>
+              <Label>Your Industry *</Label>
+              <Select onValueChange={(val) => handleInputChange('industry', val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ecommerce">E-commerce</SelectItem>
+                  <SelectItem value="healthcare">Healthcare</SelectItem>
+                  <SelectItem value="finance">Finance</SelectItem>
+                  <SelectItem value="education">Education</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>What should Voice AI handle? *</Label>
+              <Select onValueChange={(val) => handleInputChange('task', val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose task" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="support">Customer Support</SelectItem>
+                  <SelectItem value="sales">Sales Calls</SelectItem>
+                  <SelectItem value="reminders">Appointment Reminders</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Estimated Monthly Call Volume *</Label>
+              <Select onValueChange={(val) => handleInputChange('volume', val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select volume" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="less_1000">Less than 1,000</SelectItem>
+                  <SelectItem value="1k_10k">1,000 - 10,000</SelectItem>
+                  <SelectItem value="10k_plus">More than 10,000</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Tell us more about your business (optional)</Label>
+              <Textarea
+                onChange={(e) => handleInputChange('about', e.target.value)}
+                placeholder="Describe your specific needs, challenges or questions"
+              />
+            </div>
+            {step1Error && <p className="text-red-500 text-sm">{step1Error}</p>}
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Work Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your.name@company.com"
-                    value={companyEmail}
-                    onChange={(e) => setCompanyEmail(e.target.value)}
-                    required
-                    disabled={isSubmitting}
-                    className="bg-background"
-                  />
-                </div>
-
-                {/* Phone number with improved country selector */}
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <div className="flex">
-                    {/* Country code selector using Dialog */}
-                    <Dialog open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                      <div className="relative w-1/3 max-w-[120px]">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setDropdownOpen(true)}
-                          disabled={isLoading || isSubmitting}
-                          className="w-full h-10 px-3 flex items-center justify-between rounded-r-none border-r-0 bg-background"
-                        >
-                          {isLoading ? (
-                            <div className="animate-pulse flex space-x-2">
-                              <div className="h-5 w-5 bg-accent rounded"></div>
-                              <div className="h-5 w-10 bg-accent rounded"></div>
-                            </div>
-                          ) : selectedCountry ? (
-                            <>
-                              <div className="flex items-center">
-                                <img
-                                  src={selectedCountry.flag}
-                                  alt={`${selectedCountry.name} flag`}
-                                  className="h-4 w-6 object-cover mr-1"
-                                />
-                                <span className="text-foreground text-sm truncate max-w-[60px]">
-                                  {selectedCountry.dial_code}
-                                </span>
-                              </div>
-                              <ChevronDown
-                                size={14}
-                                className="text-muted-foreground ml-1 flex-shrink-0"
-                              />
-                            </>
-                          ) : (
-                            <span className="text-muted-foreground flex items-center">
-                              <Globe size={14} className="mr-1" />
-                              <span>Code</span>
-                            </span>
-                          )}
-                        </Button>
-                      </div>
-
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Select Country Code</DialogTitle>
-                          <DialogDescription>
-                            Choose your country for the correct dialing code
-                          </DialogDescription>
-                        </DialogHeader>
-
-                        <div className="relative mb-4">
-                          <Search
-                            size={16}
-                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-                          />
-                          <Input
-                            type="text"
-                            placeholder="Search countries..."
-                            className="w-full pl-9"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            autoFocus
-                          />
-                        </div>
-
-                        <ScrollArea className="h-72">
-                          <div className="grid gap-1">
-                            {filteredCountries.length > 0 ? (
-                              filteredCountries.map((country) => (
-                                <Button
-                                  key={country.code}
-                                  variant="ghost"
-                                  className="w-full justify-start h-auto py-2.5 px-3"
-                                  onClick={() => {
-                                    setSelectedCountry(country);
-                                    setDropdownOpen(false);
-                                    setSearchQuery('');
-                                  }}
-                                >
-                                  <div className="flex items-center w-full">
-                                    <img
-                                      src={country.flag}
-                                      alt={`${country.name} flag`}
-                                      className="h-4 w-6 object-cover mr-2"
-                                    />
-                                    <span className="text-foreground flex-grow text-left truncate">
-                                      {country.name}
-                                    </span>
-                                    <span className="text-muted-foreground text-sm">
-                                      {country.dial_code}
-                                    </span>
-                                    {selectedCountry?.code === country.code && (
-                                      <Check
-                                        size={16}
-                                        className="ml-2 text-primary flex-shrink-0"
-                                      />
-                                    )}
-                                  </div>
-                                </Button>
-                              ))
-                            ) : (
-                              <div className="px-3 py-6 text-center text-muted-foreground">
-                                No countries found
-                              </div>
-                            )}
-                          </div>
-                        </ScrollArea>
-
-                        <DialogClose asChild>
-                          <Button variant="outline" className="mt-2">
-                            Close
-                          </Button>
-                        </DialogClose>
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* Phone number input */}
-                    <div className="relative flex-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Phone size={16} className="text-muted-foreground" />
-                      </div>
-                      <Input
-                        type="tel"
-                        id="phone"
-                        className="rounded-l-none pl-10 bg-background"
-                        placeholder="123 456 7890"
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        required
-                        disabled={isSubmitting}
-                      />
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    We'll send important updates about your early access
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="interest">Area of Interest</Label>
-                  <Select
-                    onValueChange={setAreaOfInterest}
-                    value={areaOfInterest}
-                    disabled={isSubmitting}
-                  >
-                    <SelectTrigger id="interest" className="w-full bg-background">
-                      <SelectValue placeholder="I'm interested in..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="receptionist">AI Receptionist</SelectItem>
-                      <SelectItem value="appointmentSetter">Appointment Setter</SelectItem>
-                      <SelectItem value="leadQualification">Lead Qualification</SelectItem>
-                      <SelectItem value="customerService">Customer Service</SelectItem>
-                      <SelectItem value="other">Other Use Case</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <Button className="w-full" size="lg" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Submitting...' : 'Get Early Access'}
+            <div className="flex flex-col gap-2 w-full mt-6">
+              <Button
+                onClick={() => {
+                  if (validateStep1()) setStep(2);
+                }}
+                className="w-full"
+              >
+                See My Custom Solutions
               </Button>
-
-              <p className="text-center text-xs text-muted-foreground pt-2">
-                By joining, you'll be first to know when we launch and receive our special early
-                access pricing
+              <p className="text-xs text-center text-muted-foreground w-full">
+                Join 200+ businesses already saving time with our voice AI
               </p>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    </section>
-  );
-};
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div>
+              <Label>Full Name *</Label>
+              <Input onChange={(e) => handleInputChange('name', e.target.value)} />
+            </div>
+            <div>
+              <Label>Business Email *</Label>
+              <Input type="email" onChange={(e) => handleInputChange('email', e.target.value)} />
+            </div>
+            <div>
+              <Label>Phone Number *</Label>
+              <Input type="tel" onChange={(e) => handleInputChange('phone', e.target.value)} />
+            </div>
+            <div className="flex flex-col gap-2 w-full mt-6">
+              <Button onClick={handleSubmit} className="w-full" disabled={isLoading}>
+                {isLoading ? 'Submitting...' : 'Submit'}
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                Your personal AI consultant will contact you within 24 hours with your custom
+                solution
+              </p>
+            </div>
 
-export default WaitlistSection;
+            <Button variant="ghost" className="w-full mt-2" onClick={() => setStep(1)}>
+              Back to Step 1
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
