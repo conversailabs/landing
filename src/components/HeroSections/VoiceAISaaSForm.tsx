@@ -29,6 +29,9 @@ export default function VoiceAISaaSForm() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [selectedCountry, setSelectedCountry] = useState('+1'); // Default to US/Canada
+  const [customDropdownOpen, setCustomDropdownOpen] = useState(false);
+  const [demoDropdownOpen, setDemoDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -57,7 +60,7 @@ export default function VoiceAISaaSForm() {
             about: formData.about,
             name: formData.name,
             email: formData.email,
-            phone: formData.phone,
+            phone: selectedCountry + ' ' + formData.phone,
           }
         : {
             name: formData.demo_name,
@@ -87,9 +90,6 @@ export default function VoiceAISaaSForm() {
     }
   };
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-
   // Transform countries data for consistency
   const transformedCountries = countries.map(country => ({
     name: country.name,
@@ -112,6 +112,98 @@ export default function VoiceAISaaSForm() {
       transformedCountries[0];
   };
 
+  // Country dropdown component to avoid duplication
+  const CountryDropdown = ({ 
+    isOpen, 
+    setIsOpen, 
+    searchValue,
+    setSearchValue,
+    onSelect
+  }: { 
+    isOpen: boolean; 
+    setIsOpen: (state: boolean) => void;
+    searchValue: string;
+    setSearchValue: (query: string) => void;
+    onSelect: (dialCode: string) => void;
+  }) => (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full flex justify-between items-center h-10"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <div className="flex items-center">
+          <img
+            src={`https://flagcdn.com/${getCountryByDialCode(selectedCountry).code.toLowerCase()}.svg`}
+            alt={`${getCountryByDialCode(selectedCountry).name} flag`}
+            className="h-4 w-6 object-cover mr-1"
+          />
+          <span className="ml-1 truncate">{selectedCountry}</span>
+        </div>
+        <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
+      </Button>
+
+      {isOpen && (
+        <div className="fixed inset-0 z-50" onClick={() => setIsOpen(false)}>
+          <div 
+            className="absolute top-12 left-0 w-72 max-h-72 bg-background border rounded-lg shadow-lg overflow-hidden z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-2 border-b sticky top-0 bg-background z-10">
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input 
+                  placeholder="Search countries..." 
+                  className="pl-8 h-8"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            </div>
+            
+            <div className="overflow-y-auto max-h-56">
+              {transformedCountries
+                .filter(country => 
+                  searchValue === '' ? true : 
+                  country.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+                  country.dial_code.includes(searchValue))
+                .map((country) => (
+                  <button
+                    key={country.code}
+                    type="button"
+                    className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-accent"
+                    onClick={() => {
+                      onSelect(country.dial_code);
+                      setIsOpen(false);
+                      setSearchValue('');
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <img
+                        src={country.flag}
+                        alt={`${country.name} flag`}
+                        className="h-4 w-6 object-cover"
+                      />
+                      <span className="font-medium truncate">{country.name}</span>
+                    </div>
+                    <span className="text-sm text-muted-foreground shrink-0">
+                      {country.dial_code}
+                    </span>
+                    {selectedCountry === country.dial_code && (
+                      <Check className="ml-2 h-4 w-4 text-blue-600" />
+                    )}
+                  </button>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
   return (
     <div className="flex flex-col items-center justify-center p-4 space-y-6">
       <div className="flex flex-col md:flex-row gap-4">
@@ -130,6 +222,7 @@ export default function VoiceAISaaSForm() {
             setStep(1);
             setFormData({});
             setStep1Error('');
+            setSelectedCountry('+1'); // Reset country code on close
           }
         }}
       >
@@ -208,7 +301,26 @@ export default function VoiceAISaaSForm() {
               </div>
               <div>
                 <Label>Phone Number *</Label>
-                <Input type="tel" onChange={(e) => handleInputChange('phone', e.target.value)} />
+                <div className="flex gap-2">
+                  {/* Country Code Selector for Custom Form */}
+                  <div className="w-1/3 relative">
+                    <CountryDropdown 
+                      isOpen={customDropdownOpen}
+                      setIsOpen={setCustomDropdownOpen}
+                      searchValue={searchQuery}
+                      setSearchValue={setSearchQuery}
+                      onSelect={setSelectedCountry}
+                    />
+                  </div>
+                  <div className="w-2/3">
+                    <Input 
+                      type="tel" 
+                      onChange={(e) => handleInputChange('phone', e.target.value)} 
+                      placeholder="Phone number" 
+                      className="h-10"
+                    />
+                  </div>
+                </div>
               </div>
               <DialogFooter>
                 <div className="flex flex-col gap-2">
@@ -247,82 +359,15 @@ export default function VoiceAISaaSForm() {
             <div className="mt-4">
               <Label htmlFor="demo_phone" className="block mb-2">Phone *</Label>
               <div className="flex gap-2">
-                {/* Improved Country Code Selector */}
+                {/* Country Code Selector for Demo Form */}
                 <div className="w-1/3 relative">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full flex justify-between items-center h-10"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={`https://flagcdn.com/${getCountryByDialCode(selectedCountry).code.toLowerCase()}.svg`}
-                        alt={`${getCountryByDialCode(selectedCountry).name} flag`}
-                        className="h-4 w-6 object-cover mr-1"
-                      />
-                      <span className="ml-1 truncate">{selectedCountry}</span>
-                    </div>
-                    <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
-                  </Button>
-
-                  {dropdownOpen && (
-                    <div className="fixed inset-0 z-50" onClick={() => setDropdownOpen(false)}>
-                      <div 
-                        className="absolute top-12 left-0 w-72 max-h-72 bg-background border rounded-lg shadow-lg overflow-hidden z-50"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="p-2 border-b sticky top-0 bg-background z-10">
-                          <div className="relative">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                            <Input 
-                              placeholder="Search countries..." 
-                              className="pl-8 h-8"
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="overflow-y-auto max-h-56">
-                          {transformedCountries
-                            .filter(country => 
-                              searchQuery === '' ? true : 
-                              country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              country.dial_code.includes(searchQuery))
-                            .map((country) => (
-                              <button
-                                key={country.code}
-                                type="button"
-                                className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-accent"
-                                onClick={() => {
-                                  setSelectedCountry(country.dial_code);
-                                  setDropdownOpen(false);
-                                  setSearchQuery('');
-                                }}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <img
-                                    src={country.flag}
-                                    alt={`${country.name} flag`}
-                                    className="h-4 w-6 object-cover"
-                                  />
-                                  <span className="font-medium truncate">{country.name}</span>
-                                </div>
-                                <span className="text-sm text-muted-foreground shrink-0">
-                                  {country.dial_code}
-                                </span>
-                                {selectedCountry === country.dial_code && (
-                                  <Check className="ml-2 h-4 w-4 text-blue-600" />
-                                )}
-                              </button>
-                            ))
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  <CountryDropdown 
+                    isOpen={demoDropdownOpen}
+                    setIsOpen={setDemoDropdownOpen}
+                    searchValue={searchQuery}
+                    setSearchValue={setSearchQuery}
+                    onSelect={setSelectedCountry}
+                  />
                 </div>
                 <div className="w-2/3">
                   <Input 

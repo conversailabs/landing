@@ -14,14 +14,41 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
+import { Search, Check, ChevronDown } from 'lucide-react';
+import countries from '@/data/countries.json';
 
 export default function WaitlistSection() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('+1'); // Default to US/Canada
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { toast } = useToast();
+
+  // Transform countries data for consistency
+  const transformedCountries = countries.map(country => ({
+    name: country.name,
+    code: country.code,
+    dial_code: country.dial_code,
+    flag: `https://flagcdn.com/${country.code.toLowerCase()}.svg`
+  }));
+
+  // Make sure US is the default for +1
+  const getCountryByDialCode = (dialCode: string) => {
+    // Special case for +1 (North America)
+    if (dialCode === '+1') {
+      const us = transformedCountries.find(c => c.code === 'US');
+      if (us) return us;
+    }
+    
+    return transformedCountries.find(c => c.dial_code === dialCode) || 
+      // Default to US if not found
+      transformedCountries.find(c => c.code === 'US') || 
+      transformedCountries[0];
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
@@ -51,7 +78,7 @@ export default function WaitlistSection() {
           about: formData.about,
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
+          phone: selectedCountry + ' ' + formData.phone,
         },
       ]);
 
@@ -64,6 +91,7 @@ export default function WaitlistSection() {
 
       // Reset form
       setFormData({});
+      setSelectedCountry('+1');
       setStep(1);
     } catch (err: any) {
       toast({
@@ -169,7 +197,93 @@ export default function WaitlistSection() {
             </div>
             <div>
               <Label>Phone Number *</Label>
-              <Input type="tel" onChange={(e) => handleInputChange('phone', e.target.value)} />
+              <div className="flex gap-2">
+                {/* Country Code Selector */}
+                <div className="w-1/3 relative">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full flex justify-between items-center h-10"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  >
+                    <div className="flex items-center">
+                      <img
+                        src={`https://flagcdn.com/${getCountryByDialCode(selectedCountry).code.toLowerCase()}.svg`}
+                        alt={`${getCountryByDialCode(selectedCountry).name} flag`}
+                        className="h-4 w-6 object-cover mr-1"
+                      />
+                      <span className="ml-1 truncate">{selectedCountry}</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
+                  </Button>
+
+                  {dropdownOpen && (
+                    <div className="fixed inset-0 z-50" onClick={() => setDropdownOpen(false)}>
+                      <div 
+                        className="absolute top-12 left-0 w-72 max-h-72 bg-background border rounded-lg shadow-lg overflow-hidden z-50"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="p-2 border-b sticky top-0 bg-background z-10">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                            <Input 
+                              placeholder="Search countries..." 
+                              className="pl-8 h-8"
+                              value={searchQuery}
+                              onChange={(e) => setSearchQuery(e.target.value)}
+                              autoFocus
+                            />
+                          </div>
+                        </div>
+                        
+                        <div className="overflow-y-auto max-h-56">
+                          {transformedCountries
+                            .filter(country => 
+                              searchQuery === '' ? true : 
+                              country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              country.dial_code.includes(searchQuery))
+                            .map((country) => (
+                              <button
+                                key={country.code}
+                                type="button"
+                                className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-accent"
+                                onClick={() => {
+                                  setSelectedCountry(country.dial_code);
+                                  setDropdownOpen(false);
+                                  setSearchQuery('');
+                                }}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <img
+                                    src={country.flag}
+                                    alt={`${country.name} flag`}
+                                    className="h-4 w-6 object-cover"
+                                  />
+                                  <span className="font-medium truncate">{country.name}</span>
+                                </div>
+                                <span className="text-sm text-muted-foreground shrink-0">
+                                  {country.dial_code}
+                                </span>
+                                {selectedCountry === country.dial_code && (
+                                  <Check className="ml-2 h-4 w-4 text-blue-600" />
+                                )}
+                              </button>
+                            ))
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="w-2/3">
+                  <Input 
+                    type="tel" 
+                    onChange={(e) => handleInputChange('phone', e.target.value)} 
+                    placeholder="Phone number" 
+                    className="h-10"
+                  />
+                </div>
+              </div>
             </div>
             <div className="flex flex-col gap-2 w-full mt-6">
               <Button onClick={handleSubmit} className="w-full" disabled={isLoading}>
