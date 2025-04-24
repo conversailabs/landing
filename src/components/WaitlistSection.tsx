@@ -102,7 +102,6 @@ export default function WaitlistSection() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="ecommerce">E-commerce</SelectItem>
-                  <SelectItem value="healthcare">Healthcare</SelectItem>
                   <SelectItem value="finance">Finance</SelectItem>
                   <SelectItem value="education">Education</SelectItem>
                 </SelectContent>
@@ -118,6 +117,7 @@ export default function WaitlistSection() {
                   <SelectItem value="support">Customer Support</SelectItem>
                   <SelectItem value="sales">Sales Calls</SelectItem>
                   <SelectItem value="reminders">Appointment Reminders</SelectItem>
+                  <SelectItem value="all_to_them">All Of Them</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -153,7 +153,7 @@ export default function WaitlistSection() {
                 See My Custom Solutions
               </Button>
               <p className="text-xs text-center text-muted-foreground w-full">
-                Join 200+ businesses already saving time with our voice AI
+                Join 200+ businesses already saving time with our voice AI *
               </p>
             </div>
           </div>

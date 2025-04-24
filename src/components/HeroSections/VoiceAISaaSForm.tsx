@@ -105,6 +105,7 @@ export default function VoiceAISaaSForm() {
         title: 'Incoming AI call',
         description: 'Watch your phone — your personalized demo is about to begin!',
       });
+      setShowDemoForm(false);
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.error?.message || error.message || 'An unexpected error occurred';
@@ -124,7 +125,13 @@ export default function VoiceAISaaSForm() {
         <Button onClick={() => setShowCustomForm(true)}>
           Request Your Custom Setup - 24hr Response
         </Button>
-        <Button onClick={() => setShowDemoForm(true)}>Experience AI Calling</Button>
+        <Button
+          onClick={() => setShowDemoForm(true)}
+          variant="outline"
+          className="border-primary border-2"
+        >
+          Experience AI Calling
+        </Button>
       </div>
 
       <Dialog
@@ -160,7 +167,6 @@ export default function VoiceAISaaSForm() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="ecommerce">E-commerce</SelectItem>
-                    <SelectItem value="healthcare">Healthcare</SelectItem>
                     <SelectItem value="finance">Finance</SelectItem>
                     <SelectItem value="education">Education</SelectItem>
                   </SelectContent>
@@ -176,6 +182,7 @@ export default function VoiceAISaaSForm() {
                     <SelectItem value="support">Customer Support</SelectItem>
                     <SelectItem value="sales">Sales Calls</SelectItem>
                     <SelectItem value="reminders">Appointment Reminders</SelectItem>
+                    <SelectItem value="all_to_them">All Of Them</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -211,7 +218,7 @@ export default function VoiceAISaaSForm() {
                     See My Custom Solutions
                   </Button>
                   <p className="text-xs text-center text-muted-foreground w-full">
-                    Join 200+ businesses already saving time with our voice AI
+                    Join 200+ businesses already saving time with our voice AI *
                   </p>
                 </div>
               </DialogFooter>
