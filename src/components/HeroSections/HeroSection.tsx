@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import FloatingIconButton from '@/components/HeroSections/FolatingIconButton';
-import EarlyAccessForm from '@/components/HeroSections/EarlyAccessForm';
 import VoiceAISaaSForm from '@/components/HeroSections/VoiceAISaaSForm';
 
 interface TimeLeft {
