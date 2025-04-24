@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import countries from '@/data/countries.json';
+
 import {
   Select,
   SelectContent,
@@ -20,6 +22,7 @@ export default function WaitlistSection() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'IN'));
 
   const { toast } = useToast();
 
@@ -169,8 +172,36 @@ export default function WaitlistSection() {
             </div>
             <div>
               <Label>Phone Number *</Label>
-              <Input type="tel" onChange={(e) => handleInputChange('phone', e.target.value)} />
+              <div className="flex gap-2 items-center">
+                <Select
+                  value={selectedCountry?.code}
+                  onValueChange={(code) => {
+                    const country = countries.find((c) => c.code === code);
+                    if (country) setSelectedCountry(country);
+                  }}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.emoji} {country.dial_code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  className="flex-1"
+                  type="tel"
+                  placeholder="Enter phone number"
+                  onChange={(e) => {
+                    handleInputChange('phone', `${selectedCountry?.dial_code}${e.target.value}`);
+                  }}
+                />
+              </div>
             </div>
+
             <div className="flex flex-col gap-2 w-full mt-6">
               <Button onClick={handleSubmit} className="w-full" disabled={isLoading}>
                 {isLoading ? 'Submitting...' : 'Submit'}

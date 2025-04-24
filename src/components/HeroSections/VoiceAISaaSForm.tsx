@@ -23,6 +23,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import axios from 'axios';
+import countries from '@/data/countries.json';
 
 export default function VoiceAISaaSForm() {
   const [showCustomForm, setShowCustomForm] = useState(false);
@@ -31,6 +32,7 @@ export default function VoiceAISaaSForm() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'IN'));
 
   const { toast } = useToast();
 
@@ -95,7 +97,7 @@ export default function VoiceAISaaSForm() {
       const response = await axios.post('/api/make-call', {
         from_number: '+16812011361',
         to_number: formData.demo_phone,
-        override_agent_id: 'agent_df655e2fd4ec6291863068597c',
+        override_agent_id: 'agent_70dbec3ad930da72a639c27fad',
         metadata: {
           name: formData.demo_name,
         },
@@ -235,7 +237,34 @@ export default function VoiceAISaaSForm() {
               </div>
               <div>
                 <Label>Phone Number *</Label>
-                <Input type="tel" onChange={(e) => handleInputChange('phone', e.target.value)} />
+                <div className="flex gap-2 items-center">
+                  <Select
+                    value={selectedCountry?.code}
+                    onValueChange={(code) => {
+                      const country = countries.find((c) => c.code === code);
+                      if (country) setSelectedCountry(country);
+                    }}
+                  >
+                    <SelectTrigger className="w-32">
+                      <SelectValue placeholder="Code" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((country) => (
+                        <SelectItem key={country.code} value={country.code}>
+                          {country.emoji} {country.dial_code}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    className="flex-1"
+                    type="tel"
+                    placeholder="Enter phone number"
+                    onChange={(e) => {
+                      handleInputChange('phone', `${selectedCountry?.dial_code}${e.target.value}`);
+                    }}
+                  />
+                </div>
               </div>
               <DialogFooter>
                 <div className="flex flex-col gap-2 w-full">
@@ -275,9 +304,40 @@ export default function VoiceAISaaSForm() {
               <Input onChange={(e) => handleInputChange('demo_name', e.target.value)} />
             </div>
             <div>
-              <Label>Phone *</Label>
-              <Input type="tel" onChange={(e) => handleInputChange('demo_phone', e.target.value)} />
+              <Label>Phone Number *</Label>
+              <div className="flex gap-2 items-center">
+                <Select
+                  value={selectedCountry?.code}
+                  onValueChange={(code) => {
+                    const country = countries.find((c) => c.code === code);
+                    if (country) setSelectedCountry(country);
+                  }}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.emoji} {country.dial_code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  className="flex-1"
+                  type="tel"
+                  placeholder="Enter phone number"
+                  onChange={(e) => {
+                    handleInputChange(
+                      'demo_phone',
+                      `${selectedCountry?.dial_code}${e.target.value}`,
+                    );
+                  }}
+                />
+              </div>
             </div>
+
             <DialogFooter>
               <div className="flex flex-col gap-2 w-full">
                 <Button onClick={handleDemoCallSubmit} className="w-full" disabled={isLoading}>
@@ -285,7 +345,7 @@ export default function VoiceAISaaSForm() {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  You'll receive a call within a minutes
+                  You'll receive a call within a minutes from +16812011361
                 </p>
               </div>
             </DialogFooter>
