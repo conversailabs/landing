@@ -1,11 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import countries from '@/data/countries.json';
 
 import {
   Select,
@@ -16,22 +15,68 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
+import { Search, Check, ChevronDown } from 'lucide-react';
+import countries from '@/data/countries.json';
+import { PlanInfo } from './PricingSection';
 
 export default function WaitlistSection() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'IN'));
+  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
+  const [selectedPlan, setSelectedPlan] = useState<PlanInfo | null>(null);
 
   const { toast } = useToast();
+
+  // Get the selected plan from localStorage when component mounts
+  useEffect(() => {
+    const planData = localStorage.getItem('selectedPlan');
+    if (planData) {
+      try {
+        const plan = JSON.parse(planData);
+        setSelectedPlan(plan);
+        // Pre-populate the form with the selected plan
+        setFormData(prevData => ({
+          ...prevData,
+          plan: plan.name,
+          billing: plan.isAnnual ? 'annual' : 'monthly'
+        }));
+      } catch (error) {
+        console.error('Error parsing plan data from localStorage', error);
+      }
+    }
+  }, []);
+
+  // Transform countries data for consistency
+  const transformedCountries = countries.map(country => ({
+    name: country.name,
+    code: country.code,
+    dial_code: country.dial_code,
+    emoji: country.emoji,
+    flag: `https://flagcdn.com/${country.code.toLowerCase()}.svg`
+  }));
+
+  // Make sure US is the default for +1
+  const getCountryByDialCode = (dialCode: string) => {
+    // Special case for +1 (North America)
+    if (dialCode === '+1') {
+      const us = transformedCountries.find(c => c.code === 'US');
+      if (us) return us;
+    }
+    
+    return transformedCountries.find(c => c.dial_code === dialCode) || 
+      // Default to US if not found
+      transformedCountries.find(c => c.code === 'US') || 
+      transformedCountries[0];
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
   const validateStep1 = () => {
-    const requiredFields = ['industry', 'task', 'volume'];
+    const requiredFields = ['task', 'volume'];
     for (const field of requiredFields) {
       if (!formData[field]) {
         setStep1Error('Please fill out all required fields before proceeding.');
@@ -48,13 +93,14 @@ export default function WaitlistSection() {
 
       const { error } = await supabase.from('voice_ai_leads').insert([
         {
-          industry: formData.industry,
           task: formData.task,
           volume: formData.volume,
           about: formData.about,
           name: formData.name,
           email: formData.email,
-          phone: formData.phone,
+          phone: selectedCountry?.dial_code + ' ' + formData.phone,
+          selected_plan: formData.plan || '',
+          billing_cycle: formData.billing || '',
         },
       ]);
 
@@ -65,8 +111,11 @@ export default function WaitlistSection() {
         description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
       });
 
-      // Reset form
+      // Reset form and localStorage
       setFormData({});
+      setSelectedCountry(getCountryByDialCode('+1'));
+      localStorage.removeItem('selectedPlan');
+      setSelectedPlan(null);
       setStep(1);
     } catch (err: any) {
       toast({
@@ -80,13 +129,30 @@ export default function WaitlistSection() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 w-full max-w-lg mx-auto my-6">
+    <div id="waitlist" className="flex flex-col items-center justify-center p-4 w-full max-w-lg mx-auto my-6">
       <div className="bg-card border rounded-lg shadow-sm p-6 w-full">
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">Get Custom Voice AI Solution</h2>
+          <h2 className="text-2xl font-semibold mb-2">
+            {selectedPlan 
+              ? `Get Started with ${selectedPlan.name}` 
+              : 'Get Custom Voice AI Solution'}
+          </h2>
           <p className="text-sm text-muted-foreground">
             Automate calls and save 20+ hours weekly with personalized AI voice agents
           </p>
+          
+          {/* Show selected plan info if available */}
+          {selectedPlan && (
+            <div className="mt-4 p-3 bg-primary/10 rounded-md">
+              <p className="font-medium">Selected Plan: {selectedPlan.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {selectedPlan.price > 0 
+                  ? `$${selectedPlan.price}/month, ${selectedPlan.isAnnual ? 'Annual' : 'Monthly'} billing` 
+                  : 'Custom pricing'}
+              </p>
+            </div>
+          )}
+
           <div className="relative w-full h-1 bg-gray-300 rounded-full mt-4">
             <div
               className="absolute h-1 bg-primary rounded-full transition-all duration-300"
@@ -98,21 +164,11 @@ export default function WaitlistSection() {
         {step === 1 ? (
           <div className="space-y-4">
             <div>
-              <Label>Your Industry *</Label>
-              <Select onValueChange={(val) => handleInputChange('industry', val)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ecommerce">E-commerce</SelectItem>
-                  <SelectItem value="finance">Finance</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
               <Label>What should Voice AI handle? *</Label>
-              <Select onValueChange={(val) => handleInputChange('task', val)}>
+              <Select 
+                value={formData.task}
+                onValueChange={(val) => handleInputChange('task', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose task" />
                 </SelectTrigger>
@@ -126,7 +182,10 @@ export default function WaitlistSection() {
             </div>
             <div>
               <Label>Estimated Monthly Call Volume *</Label>
-              <Select onValueChange={(val) => handleInputChange('volume', val)}>
+              <Select 
+                value={formData.volume}
+                onValueChange={(val) => handleInputChange('volume', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select volume" />
                 </SelectTrigger>
@@ -140,6 +199,7 @@ export default function WaitlistSection() {
             <div>
               <Label>Tell us more about your business (optional)</Label>
               <Textarea
+                value={formData.about || ''}
                 onChange={(e) => handleInputChange('about', e.target.value)}
                 placeholder="Describe your specific needs, challenges or questions"
               />
@@ -164,11 +224,18 @@ export default function WaitlistSection() {
           <div className="space-y-4">
             <div>
               <Label>Full Name *</Label>
-              <Input onChange={(e) => handleInputChange('name', e.target.value)} />
+              <Input 
+                value={formData.name || ''}
+                onChange={(e) => handleInputChange('name', e.target.value)} 
+              />
             </div>
             <div>
               <Label>Business Email *</Label>
-              <Input type="email" onChange={(e) => handleInputChange('email', e.target.value)} />
+              <Input 
+                type="email" 
+                value={formData.email || ''}
+                onChange={(e) => handleInputChange('email', e.target.value)} 
+              />
             </div>
             <div>
               <Label>Phone Number *</Label>
@@ -195,8 +262,9 @@ export default function WaitlistSection() {
                   className="flex-1"
                   type="tel"
                   placeholder="Enter phone number"
+                  value={formData.phone || ''}
                   onChange={(e) => {
-                    handleInputChange('phone', `${selectedCountry?.dial_code}${e.target.value}`);
+                    handleInputChange('phone', e.target.value);
                   }}
                 />
               </div>

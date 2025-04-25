@@ -1,7 +1,6 @@
 'use client';
 
-import 'react-phone-input-2/lib/style.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -32,16 +31,31 @@ export default function VoiceAISaaSForm() {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'IN'));
+  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
 
   const { toast } = useToast();
+
+  // Listen for the custom event to open the demo form
+  useEffect(() => {
+    const handleOpenDemoForm = () => {
+      setShowDemoForm(true);
+    };
+
+    // Add event listener
+    document.addEventListener('openAIDemoForm', handleOpenDemoForm);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      document.removeEventListener('openAIDemoForm', handleOpenDemoForm);
+    };
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
   const validateStep1 = () => {
-    const requiredFields = ['industry', 'task', 'volume'];
+    const requiredFields = ['task', 'volume'];
     for (const field of requiredFields) {
       if (!formData[field]) {
         setStep1Error('Please fill out all required fields before proceeding.');
@@ -58,7 +72,6 @@ export default function VoiceAISaaSForm() {
 
       const { error } = await supabase.from('voice_ai_leads').insert([
         {
-          industry: formData.industry,
           task: formData.task,
           volume: formData.volume,
           about: formData.about,
@@ -124,56 +137,32 @@ export default function VoiceAISaaSForm() {
   return (
     <div className="flex flex-col items-center justify-center p-4 space-y-6">
       <div className="flex flex-col md:flex-row gap-4">
-        <Button onClick={() => setShowCustomForm(true)}>
-          Request Your Custom Setup - 24hr Response
-        </Button>
-        <Button
-          onClick={() => setShowDemoForm(true)}
-          variant="outline"
-          className="border-primary border-2"
-        >
-          Experience AI Calling
+        <Button onClick={() => setShowCustomForm(true)}>Get your custom voice AI solutions</Button>
+        <Button onClick={() => setShowDemoForm(true)} variant="outline">
+          Experience AI calling
         </Button>
       </div>
 
+      {/* Custom Voice AI Form */}
       <Dialog
         open={showCustomForm}
         onOpenChange={(open) => {
           setShowCustomForm(open);
           if (!open) {
             setStep(1);
+            setFormData({});
+            setStep1Error('');
+            setSelectedCountry(countries.find((c) => c.code === 'US')); // Reset country code on close
           }
         }}
       >
         <DialogContent className="max-w-lg w-full">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Get Custom Voice AI Solution</DialogTitle>
-            <p className="text-sm text-muted-foreground">
-              Automate calls and save 20+ hours weekly with personalized AI voice agents
-            </p>
-            <div className="relative w-full h-1 bg-gray-300 rounded-full mb-6">
-              <div
-                className="absolute h-1 bg-primary rounded-full transition-all duration-300"
-                style={{ width: `${step === 1 ? '50%' : '100%'}` }}
-              />
-            </div>
+            <DialogTitle>Get Custom Voice AI Solution</DialogTitle>
           </DialogHeader>
 
           {step === 1 ? (
             <div className="space-y-4">
-              <div>
-                <Label>Your Industry *</Label>
-                <Select onValueChange={(val) => handleInputChange('industry', val)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select industry" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ecommerce">E-commerce</SelectItem>
-                    <SelectItem value="finance">Finance</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
               <div>
                 <Label>What should Voice AI handle? *</Label>
                 <Select onValueChange={(val) => handleInputChange('task', val)}>
@@ -184,7 +173,6 @@ export default function VoiceAISaaSForm() {
                     <SelectItem value="support">Customer Support</SelectItem>
                     <SelectItem value="sales">Sales Calls</SelectItem>
                     <SelectItem value="reminders">Appointment Reminders</SelectItem>
-                    <SelectItem value="all_to_them">All Of Them</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -203,26 +191,18 @@ export default function VoiceAISaaSForm() {
               </div>
               <div>
                 <Label>Tell us more about your business (optional)</Label>
-                <Textarea
-                  onChange={(e) => handleInputChange('about', e.target.value)}
-                  placeholder="Describe your specific needs, challenges or questions"
-                />
+                <Textarea onChange={(e) => handleInputChange('about', e.target.value)} />
               </div>
               {step1Error && <p className="text-red-500 text-sm">{step1Error}</p>}
-
               <DialogFooter>
-                <div className="flex flex-col gap-2 w-full">
-                  <Button
-                    onClick={() => {
-                      if (validateStep1()) setStep(2);
-                    }}
-                  >
-                    See My Custom Solutions
-                  </Button>
-                  <p className="text-xs text-center text-muted-foreground w-full">
-                    Join 200+ businesses already saving time with our voice AI *
-                  </p>
-                </div>
+                <Button
+                  onClick={() => {
+                    if (validateStep1()) setStep(2);
+                  }}
+                  className="w-full"
+                >
+                  Next
+                </Button>
               </DialogFooter>
             </div>
           ) : (
@@ -267,11 +247,11 @@ export default function VoiceAISaaSForm() {
                 </div>
               </div>
               <DialogFooter>
-                <div className="flex flex-col gap-2 w-full">
+                <div className="flex flex-col gap-2">
                   <Button onClick={() => handleSubmit()}>Submit</Button>
                   <p className="text-xs text-center text-muted-foreground">
-                    Your personal AI consultant will contact you within 24 hours with your custom
-                    solution
+                    We'll email you with details about how our voice agents can help your specific
+                    business.
                   </p>
                 </div>
               </DialogFooter>
@@ -287,21 +267,18 @@ export default function VoiceAISaaSForm() {
           setShowDemoForm(open);
           if (!open) {
             setFormData({});
+            setSelectedCountry(countries.find((c) => c.code === 'US')); // Reset country code on close
           }
         }}
       >
         <DialogContent className="max-w-md w-full">
           <DialogHeader>
-            <DialogTitle className="text-2xl">Experience AI Calling - Live Demo</DialogTitle>
-            <p className="text-sm text-muted-foreground">
-              Hear exactly how our intelligent voice AI will sound to your customers with a
-              personalized demo call.
-            </p>
+            <DialogTitle>Experience AI Calling</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label>Name *</Label>
-              <Input onChange={(e) => handleInputChange('demo_name', e.target.value)} />
+              <Label htmlFor="demo_name" className="block mb-2">Name *</Label>
+              <Input id="demo_name" onChange={(e) => handleInputChange('demo_name', e.target.value)} />
             </div>
             <div>
               <Label>Phone Number *</Label>
