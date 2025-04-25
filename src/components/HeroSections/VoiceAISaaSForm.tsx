@@ -270,11 +270,11 @@ export default function VoiceAISaaSForm() {
             </p>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
+            <div className="space-y-2">
               <Label>Name *</Label>
               <Input onChange={(e) => handleInputChange('demo_name', e.target.value)} />
             </div>
-            <div>
+            <div className="space-y-2">
               <Label>Phone *</Label>
               <Input type="tel" onChange={(e) => handleInputChange('demo_phone', e.target.value)} />
             </div>
