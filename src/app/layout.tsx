@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from '@/components/ui/toaster';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import ClarityInit from '../analytics/Clarity';
+import FacebookPixel from '../analytics/FacebookPixel';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -31,7 +32,8 @@ export default function RootLayout({
         {children}
         <Toaster />
         <ClarityInit />
-        <GoogleAnalytics gaId={process.env.NEXT_PULBIC_GTAG_ID!} />
+        <FacebookPixel />
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GTAG_ID!} />
       </body>
     </html>
   );
