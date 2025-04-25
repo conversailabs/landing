@@ -8,6 +8,7 @@ import { Linkedin } from 'lucide-react';
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const companyName = 'ConversAILabs';
+  const emailAddress = 'dev@conversailabs.com';
 
   return (
     <footer className="bg-accent py-12">
@@ -38,7 +39,12 @@ const Footer = () => {
                 </a>
               </li>
               <li>
-                <a href="#" className="text-muted-foreground hover:text-primary">
+                <a 
+                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}`}
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary"
+                >
                   Contact
                 </a>
               </li>
