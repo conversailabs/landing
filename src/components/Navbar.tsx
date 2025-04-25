@@ -1,18 +1,25 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Menu } from 'lucide-react';
 
+// Create a custom event for opening the demo form
+const openDemoFormEvent = new CustomEvent('openAIDemoForm');
+
 const Navbar = () => {
-  // Using useState with a stable initial value
   const [isOpen, setIsOpen] = useState(false);
 
-  // Avoid dynamically generated content that could cause hydration errors
   const handleLinkClick = () => {
     setIsOpen(false);
+  };
+
+  // Function to handle "Experience AI Calling" button click
+  const handleDemoButtonClick = () => {
+    // Dispatch custom event to trigger the demo form
+    document.dispatchEvent(openDemoFormEvent);
+    setIsOpen(false); // Close the mobile menu if open
   };
 
   return (
@@ -28,13 +35,8 @@ const Navbar = () => {
               (e.target as HTMLImageElement).style.display = 'none';
             }}
           />
-          <span className="text-xl font-bold hidden md:inline"></span>
-        </a>
-
-        {/* Company name in the middle for mobile view */}
-        <div className="flex-1 text-center md:hidden">
           <span className="text-xl font-bold">ConversAILabs</span>
-        </div>
+        </a>
 
         <div className="hidden md:flex items-center space-x-6 flex-1 justify-end">
           <a href="#features" className="hover:text-primary">
@@ -43,16 +45,14 @@ const Navbar = () => {
           <a href="#pricing" className="hover:text-primary">
             Pricing
           </a>
-
           <a href="#about" className="hover:text-primary">
             About Us
           </a>
           <a href="#faq" className="hover:text-primary">
             FAQs
           </a>
-          <a href="#waitlist">
-            <Button>Experience AI Calling</Button>
-          </a>
+          {/* Updated to use onClick instead of href */}
+          <Button onClick={handleDemoButtonClick}>Experience AI Calling</Button>
         </div>
 
         <div className="md:hidden">
@@ -83,16 +83,16 @@ const Navbar = () => {
                 <a href="#pricing" className="hover:text-primary" onClick={handleLinkClick}>
                   Pricing
                 </a>
-
                 <a href="#about" className="hover:text-primary" onClick={handleLinkClick}>
                   About Us
                 </a>
                 <a href="#faq" className="hover:text-primary" onClick={handleLinkClick}>
                   FAQs
                 </a>
-                <a href="#waitlist" className="mt-2" onClick={handleLinkClick}>
-                  <Button className="w-full">Experience AI Calling</Button>
-                </a>
+                {/* Updated to use onClick instead of href */}
+                <Button className="w-full mt-2" onClick={handleDemoButtonClick}>
+                  Experience AI Calling
+                </Button>
               </div>
             </SheetContent>
           </Sheet>

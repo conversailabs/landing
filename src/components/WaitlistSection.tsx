@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+
 import {
   Select,
   SelectContent,
@@ -16,23 +17,43 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { Search, Check, ChevronDown } from 'lucide-react';
 import countries from '@/data/countries.json';
+import { PlanInfo } from './PricingSection';
 
 export default function WaitlistSection() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState('+1'); // Default to US/Canada
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
+  const [selectedPlan, setSelectedPlan] = useState<PlanInfo | null>(null);
 
   const { toast } = useToast();
+
+  // Get the selected plan from localStorage when component mounts
+  useEffect(() => {
+    const planData = localStorage.getItem('selectedPlan');
+    if (planData) {
+      try {
+        const plan = JSON.parse(planData);
+        setSelectedPlan(plan);
+        // Pre-populate the form with the selected plan
+        setFormData(prevData => ({
+          ...prevData,
+          plan: plan.name,
+          billing: plan.isAnnual ? 'annual' : 'monthly'
+        }));
+      } catch (error) {
+        console.error('Error parsing plan data from localStorage', error);
+      }
+    }
+  }, []);
 
   // Transform countries data for consistency
   const transformedCountries = countries.map(country => ({
     name: country.name,
     code: country.code,
     dial_code: country.dial_code,
+    emoji: country.emoji,
     flag: `https://flagcdn.com/${country.code.toLowerCase()}.svg`
   }));
 
@@ -55,7 +76,7 @@ export default function WaitlistSection() {
   };
 
   const validateStep1 = () => {
-    const requiredFields = ['industry', 'task', 'volume'];
+    const requiredFields = ['task', 'volume'];
     for (const field of requiredFields) {
       if (!formData[field]) {
         setStep1Error('Please fill out all required fields before proceeding.');
@@ -72,13 +93,14 @@ export default function WaitlistSection() {
 
       const { error } = await supabase.from('voice_ai_leads').insert([
         {
-          industry: formData.industry,
           task: formData.task,
           volume: formData.volume,
           about: formData.about,
           name: formData.name,
           email: formData.email,
-          phone: selectedCountry + ' ' + formData.phone,
+          phone: selectedCountry?.dial_code + ' ' + formData.phone,
+          selected_plan: formData.plan || '',
+          billing_cycle: formData.billing || '',
         },
       ]);
 
@@ -89,9 +111,11 @@ export default function WaitlistSection() {
         description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
       });
 
-      // Reset form
+      // Reset form and localStorage
       setFormData({});
-      setSelectedCountry('+1');
+      setSelectedCountry(getCountryByDialCode('+1'));
+      localStorage.removeItem('selectedPlan');
+      setSelectedPlan(null);
       setStep(1);
     } catch (err: any) {
       toast({
@@ -105,13 +129,30 @@ export default function WaitlistSection() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 w-full max-w-lg mx-auto my-6">
+    <div id="waitlist" className="flex flex-col items-center justify-center p-4 w-full max-w-lg mx-auto my-6">
       <div className="bg-card border rounded-lg shadow-sm p-6 w-full">
         <div className="mb-6">
-          <h2 className="text-2xl font-semibold mb-2">Get Custom Voice AI Solution</h2>
+          <h2 className="text-2xl font-semibold mb-2">
+            {selectedPlan 
+              ? `Get Started with ${selectedPlan.name}` 
+              : 'Get Custom Voice AI Solution'}
+          </h2>
           <p className="text-sm text-muted-foreground">
             Automate calls and save 20+ hours weekly with personalized AI voice agents
           </p>
+          
+          {/* Show selected plan info if available */}
+          {selectedPlan && (
+            <div className="mt-4 p-3 bg-primary/10 rounded-md">
+              <p className="font-medium">Selected Plan: {selectedPlan.name}</p>
+              <p className="text-sm text-muted-foreground">
+                {selectedPlan.price > 0 
+                  ? `$${selectedPlan.price}/month, ${selectedPlan.isAnnual ? 'Annual' : 'Monthly'} billing` 
+                  : 'Custom pricing'}
+              </p>
+            </div>
+          )}
+
           <div className="relative w-full h-1 bg-gray-300 rounded-full mt-4">
             <div
               className="absolute h-1 bg-primary rounded-full transition-all duration-300"
@@ -123,21 +164,11 @@ export default function WaitlistSection() {
         {step === 1 ? (
           <div className="space-y-4">
             <div>
-              <Label>Your Industry *</Label>
-              <Select onValueChange={(val) => handleInputChange('industry', val)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="ecommerce">E-commerce</SelectItem>
-                  <SelectItem value="finance">Finance</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
               <Label>What should Voice AI handle? *</Label>
-              <Select onValueChange={(val) => handleInputChange('task', val)}>
+              <Select 
+                value={formData.task}
+                onValueChange={(val) => handleInputChange('task', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Choose task" />
                 </SelectTrigger>
@@ -151,7 +182,10 @@ export default function WaitlistSection() {
             </div>
             <div>
               <Label>Estimated Monthly Call Volume *</Label>
-              <Select onValueChange={(val) => handleInputChange('volume', val)}>
+              <Select 
+                value={formData.volume}
+                onValueChange={(val) => handleInputChange('volume', val)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select volume" />
                 </SelectTrigger>
@@ -165,6 +199,7 @@ export default function WaitlistSection() {
             <div>
               <Label>Tell us more about your business (optional)</Label>
               <Textarea
+                value={formData.about || ''}
                 onChange={(e) => handleInputChange('about', e.target.value)}
                 placeholder="Describe your specific needs, challenges or questions"
               />
@@ -189,102 +224,52 @@ export default function WaitlistSection() {
           <div className="space-y-4">
             <div>
               <Label>Full Name *</Label>
-              <Input onChange={(e) => handleInputChange('name', e.target.value)} />
+              <Input 
+                value={formData.name || ''}
+                onChange={(e) => handleInputChange('name', e.target.value)} 
+              />
             </div>
             <div>
               <Label>Business Email *</Label>
-              <Input type="email" onChange={(e) => handleInputChange('email', e.target.value)} />
+              <Input 
+                type="email" 
+                value={formData.email || ''}
+                onChange={(e) => handleInputChange('email', e.target.value)} 
+              />
             </div>
             <div>
               <Label>Phone Number *</Label>
-              <div className="flex gap-2">
-                {/* Country Code Selector */}
-                <div className="w-1/3 relative">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full flex justify-between items-center h-10"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    <div className="flex items-center">
-                      <img
-                        src={`https://flagcdn.com/${getCountryByDialCode(selectedCountry).code.toLowerCase()}.svg`}
-                        alt={`${getCountryByDialCode(selectedCountry).name} flag`}
-                        className="h-4 w-6 object-cover mr-1"
-                      />
-                      <span className="ml-1 truncate">{selectedCountry}</span>
-                    </div>
-                    <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
-                  </Button>
-
-                  {dropdownOpen && (
-                    <div className="fixed inset-0 z-50" onClick={() => setDropdownOpen(false)}>
-                      <div 
-                        className="absolute top-12 left-0 w-72 max-h-72 bg-background border rounded-lg shadow-lg overflow-hidden z-50"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="p-2 border-b sticky top-0 bg-background z-10">
-                          <div className="relative">
-                            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
-                            <Input 
-                              placeholder="Search countries..." 
-                              className="pl-8 h-8"
-                              value={searchQuery}
-                              onChange={(e) => setSearchQuery(e.target.value)}
-                              autoFocus
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="overflow-y-auto max-h-56">
-                          {transformedCountries
-                            .filter(country => 
-                              searchQuery === '' ? true : 
-                              country.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              country.dial_code.includes(searchQuery))
-                            .map((country) => (
-                              <button
-                                key={country.code}
-                                type="button"
-                                className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-accent"
-                                onClick={() => {
-                                  setSelectedCountry(country.dial_code);
-                                  setDropdownOpen(false);
-                                  setSearchQuery('');
-                                }}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <img
-                                    src={country.flag}
-                                    alt={`${country.name} flag`}
-                                    className="h-4 w-6 object-cover"
-                                  />
-                                  <span className="font-medium truncate">{country.name}</span>
-                                </div>
-                                <span className="text-sm text-muted-foreground shrink-0">
-                                  {country.dial_code}
-                                </span>
-                                {selectedCountry === country.dial_code && (
-                                  <Check className="ml-2 h-4 w-4 text-blue-600" />
-                                )}
-                              </button>
-                            ))
-                          }
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                <div className="w-2/3">
-                  <Input 
-                    type="tel" 
-                    onChange={(e) => handleInputChange('phone', e.target.value)} 
-                    placeholder="Phone number" 
-                    className="h-10"
-                  />
-                </div>
+              <div className="flex gap-2 items-center">
+                <Select
+                  value={selectedCountry?.code}
+                  onValueChange={(code) => {
+                    const country = countries.find((c) => c.code === code);
+                    if (country) setSelectedCountry(country);
+                  }}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Code" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.code} value={country.code}>
+                        {country.emoji} {country.dial_code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  className="flex-1"
+                  type="tel"
+                  placeholder="Enter phone number"
+                  value={formData.phone || ''}
+                  onChange={(e) => {
+                    handleInputChange('phone', e.target.value);
+                  }}
+                />
               </div>
             </div>
+
             <div className="flex flex-col gap-2 w-full mt-6">
               <Button onClick={handleSubmit} className="w-full" disabled={isLoading}>
                 {isLoading ? 'Submitting...' : 'Submit'}

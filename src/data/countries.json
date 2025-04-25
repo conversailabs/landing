@@ -1,4 +1,17 @@
-[{
+[
+    {
+        "name": "United States",
+        "dial_code": "+1",
+        "emoji": "🇺🇸",
+        "code": "US"
+    },
+    {
+        "name": "India",
+        "dial_code": "+91",
+        "emoji": "🇮🇳",
+        "code": "IN"
+    },
+    {
         "name": "Afghanistan",
         "dial_code": "+93",
         "emoji": "🇦🇫",
@@ -579,12 +592,6 @@
         "dial_code": "+354",
         "emoji": "🇮🇸",
         "code": "IS"
-    },
-    {
-        "name": "India",
-        "dial_code": "+91",
-        "emoji": "🇮🇳",
-        "code": "IN"
     },
     {
         "name": "Indonesia",
@@ -1377,12 +1384,6 @@
         "dial_code": "+44",
         "emoji": "🇬🇧",
         "code": "GB"
-    },
-    {
-        "name": "United States",
-        "dial_code": "+1",
-        "emoji": "🇺🇸",
-        "code": "US"
     },
     {
         "name": "Uruguay",
