@@ -26,14 +26,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const ENABLE_ANALYTICS = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true';
+
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
         <Toaster />
-        <ClarityInit />
-        <FacebookPixel />
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GTAG_ID!} />
+
+        {ENABLE_ANALYTICS && (
+          <>
+            <ClarityInit />
+            <FacebookPixel />
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GTAG_ID!} />
+          </>
+        )}
       </body>
     </html>
   );
