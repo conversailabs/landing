@@ -113,6 +113,12 @@ export default function VoiceAISaaSForm() {
         override_agent_id: 'agent_70dbec3ad930da72a639c27fad',
         metadata: {
           name: formData.demo_name,
+          number: formData.demo_phone,
+        },
+        retell_llm_dynamic_variables: {
+          name: formData.demo_name,
+          number: formData.demo_phone,
+          current_time: new Date().toISOString(),
         },
       });
 
@@ -277,8 +283,13 @@ export default function VoiceAISaaSForm() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="demo_name" className="block mb-2">Name *</Label>
-              <Input id="demo_name" onChange={(e) => handleInputChange('demo_name', e.target.value)} />
+              <Label htmlFor="demo_name" className="block mb-2">
+                Name *
+              </Label>
+              <Input
+                id="demo_name"
+                onChange={(e) => handleInputChange('demo_name', e.target.value)}
+              />
             </div>
             <div>
               <Label>Phone Number *</Label>

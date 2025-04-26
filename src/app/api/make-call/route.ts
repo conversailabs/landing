@@ -3,11 +3,12 @@ import axios from 'axios';
 import { checkRateLimits, logCall } from '@/lib/callRateLimiter';
 
 interface CallRequestBody {
-  from_number?: string;
+  from_number: string;
   to_number: string;
   override_agent_id?: string;
   override_agent_version?: string;
   metadata?: Record<string, any>;
+  retell_llm_dynamic_variables?: Record<string, any>;
 }
 
 export async function POST(req: NextRequest) {
@@ -18,7 +19,8 @@ export async function POST(req: NextRequest) {
       to_number,
       override_agent_id,
       override_agent_version,
-      metadata
+      metadata,
+      retell_llm_dynamic_variables
     } = body;
 
     if (!to_number) {
@@ -42,6 +44,7 @@ export async function POST(req: NextRequest) {
       ...(override_agent_id && { override_agent_id }),
       ...(override_agent_version && { override_agent_version }),
       ...(metadata && { metadata }),
+      ...(retell_llm_dynamic_variables && { retell_llm_dynamic_variables })
     };
 
     const response = await axios.post(

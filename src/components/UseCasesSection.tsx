@@ -9,14 +9,10 @@ import {
   Play,
   Pause,
   User,
-  Volume2,
-  VolumeX,
-  Phone,
   PhoneOff,
   Users,
 } from 'lucide-react';
 import { getAudioUrl } from '../lib/supabaseClient'; // Adjusted relative path
-import PhoneCallForm from './PhoneCallForm'; // Import the phone call form component
 
 // Define audio file paths - these map to actual files in Supabase storage
 const AUDIO_FILES = {
@@ -28,9 +24,6 @@ const AUDIO_FILES = {
   ecommerce: 'ecommerce.mp3',
 };
 
-const SUPBASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-// Fallback to static URLs in case dynamic fetching fails
 const FALLBACK_AUDIO_URLS = {
   receptionist:
     'https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/receptionist.mp3',
@@ -130,7 +123,6 @@ const UseCasesSection = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // States for UI elements (without actual API integration)
-  const [showCallForm, setShowCallForm] = useState(false);
   const [phoneNumber, setPhoneNumber] = useState('');
   const [callStatus, setCallStatus] = useState('');
   const [isInCall, setIsInCall] = useState(false);
@@ -308,8 +300,6 @@ const UseCasesSection = () => {
     if (currentUseCase.title !== useCase.title) {
       setCurrentUseCase(useCase);
 
-      // Hide call form and reset call state when changing use cases
-      setShowCallForm(false);
       if (isInCall) {
         endCallHandler();
       }
@@ -332,25 +322,6 @@ const UseCasesSection = () => {
     if (newVolume > 0 && isMuted) {
       setIsMuted(false);
     }
-  };
-
-  // Call UI functionality (without actual API integration)
-  const handleCallClick = () => {
-    setShowCallForm(true);
-    setCallError(null);
-  };
-
-  const handlePhoneSubmit = async (phone: string) => {
-    // Just hide the form - don't set any call status or flags
-    setShowCallForm(false);
-
-    // Optionally log the phone number for debugging purposes
-    console.log('Form submitted with phone:', phone);
-
-    // No need to set phoneNumber, callStatus, or isInCall
-  };
-  const handleFormCancel = () => {
-    setShowCallForm(false);
   };
 
   const endCallHandler = async () => {
@@ -517,16 +488,6 @@ const UseCasesSection = () => {
                   </svg>
                 </div>
               </div>
-            )}
-
-            {/* Phone Call Form Modal - Only show when needed */}
-            {showCallForm && (
-              <PhoneCallForm
-                onSubmit={handlePhoneSubmit}
-                onCancel={handleFormCancel}
-                outboundAgentID={currentUseCase.outboundAgentID ?? ''}
-                outboundNumber={currentUseCase.outboundNumber ?? ''}
-              />
             )}
           </div>
 
