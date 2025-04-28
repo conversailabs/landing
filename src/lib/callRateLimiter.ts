@@ -30,6 +30,8 @@ export async function checkRateLimits(to_number: string) {
   return { allowed: true };
 }
 
-export async function logCall(to_number: string) {
-  await supabaseAdmin.from('call_logs').insert({ to_number });
+export async function logCall(to_number: string,name: string) {
+  await supabaseAdmin.from('call_logs').insert({ 
+    to_number ,
+    name});
 }
