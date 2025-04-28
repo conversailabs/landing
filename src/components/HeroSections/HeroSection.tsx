@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import VoiceAISaaSForm from '@/components/HeroSections/VoiceAISaaSForm';
-import { WavyBackground } from '@/components/ui/wavy-background';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface UseCase {
@@ -171,33 +170,47 @@ const HeroSection: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-[90vh] flex flex-col justify-center">
-      <div className="container px-10 mx-auto text-center flex-grow flex flex-col justify-center">
-        <h1 className="w-full max-w-7xl text-center text-3xl font-extrabold md:text-4xl lg:text-5xl 2xl:text-6xl uppercase">
+    <div className="min-h-[90vh] flex flex-col justify-center items-center">
+      <div className="container px-10 mx-auto text-center flex-grow flex flex-col justify-center items-center">
+        {/* Increased max-width for lg screens to ensure one-line heading */}
+        <h1 className="mx-auto w-full max-w-4xl lg:max-w-6xl text-center text-3xl font-extrabold md:text-4xl lg:text-5xl 2xl:text-6xl uppercase whitespace-normal lg:whitespace-nowrap">
           Intelligent Voice AI Agents
         </h1>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentIndex}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="w-full mt-6 max-w-7xl text-center text-primary text-3xl font-extrabold md:text-4xl lg:text-5xl 2xl:text-6xl uppercase">
-              {currentUseCase.title}
-            </h2>
+        
+        {/* Content container with fixed height to prevent layout shifts */}
+        <div className="w-full flex flex-col items-center" style={{ minHeight: '220px', position: 'relative' }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentIndex}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.6 }}
+              className="w-full flex flex-col items-center absolute top-0 left-0 right-0"
+            >
+              <h2 className="mx-auto mt-5 max-w-3xl lg:max-w-5xl text-center text-primary text-2xl font-extrabold md:text-3xl lg:text-4xl 2xl:text-5xl uppercase">
+                {currentUseCase.title}
+              </h2>
 
-            <div className="mx-auto md:max-w-2xl lg:max-w-3xl px-2 md:px-0 mt-4">
-              <div className="mb-8 md:mb-6 font-medium text-gray-700">
-                <p className="my-4 md:mb-3 text-base md:text-xl">{currentUseCase.description}</p>
+              <div className="mx-auto md:max-w-2xl lg:max-w-3xl px-2 md:px-0 mt-4">
+                <div className="mb-6 md:mb-5 text-muted-foreground">
+                  <p className="my-3 md:mb-2 text-sm md:text-base lg:text-lg leading-relaxed max-w-prose">
+                    {currentUseCase.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="mt-4"></div>
-        <VoiceAISaaSForm />
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        
+        {/* Button container with fixed position */}
+        <div className="mt-4 w-full">
+          <VoiceAISaaSForm />
+        </div>
+        
+        {/* Added margin-bottom to create space between buttons and wave */}
+        <div className="mb-3 md:mb-5"></div>
+        
         <div className="wave-container overflow-hidden absolute bottom-0 left-0 w-full z-0">
           <div className="w-[200%] moving-wave">
             <svg

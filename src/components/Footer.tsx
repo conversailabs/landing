@@ -1,14 +1,22 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { Linkedin } from 'lucide-react';
+import { Linkedin, Phone, Mail } from 'lucide-react';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const companyName = 'ConversAILabs';
-  const emailAddress = 'dev@conversailabs.com';
+  const emailAddress = 'connect@conversailabs.com';
+  const phoneNumber = '+1 (681) 201-1361';
+  
+  const [showContact, setShowContact] = useState(false);
+  
+  const toggleContactInfo = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    setShowContact(!showContact);
+  };
 
   return (
     <footer className="bg-accent py-12">
@@ -40,14 +48,25 @@ const Footer = () => {
               </li>
               <li>
                 <a 
-                  href={`https://mail.google.com/mail/?view=cm&fs=1&to=${emailAddress}`}
-                  target="_blank" 
-                  rel="noopener noreferrer"
+                  href="#"
+                  onClick={toggleContactInfo}
                   className="text-muted-foreground hover:text-primary"
                 >
                   Contact
                 </a>
               </li>
+              {showContact && (
+                <li className="pl-4 pt-2 space-y-2">
+                  <div className="flex items-center text-muted-foreground">
+                    <Phone className="h-4 w-4 mr-2" />
+                    <span>{phoneNumber}</span>
+                  </div>
+                  <div className="flex items-center text-muted-foreground">
+                    <Mail className="h-4 w-4 mr-2" />
+                    <span>{emailAddress}</span>
+                  </div>
+                </li>
+              )}
             </ul>
           </div>
         </div>
