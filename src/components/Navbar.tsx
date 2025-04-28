@@ -81,7 +81,7 @@ const Navbar = () => {
             <SheetContent side="right" className="md:hidden pt-0">
               {/* Keep SheetTitle but visually hide it for accessibility */}
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <div className="flex items-center mb-4 pt-0">
+              <div className="flex items-center mb-3 pt-4 mt-4 px-1">
                 <img
                   src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/sign/demo-audios/Group%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcyMzJmNjk4LTBiYTAtNGU4Yi1iZWMxLWM3NDgyYTM4Y2RjOSJ9.eyJ1cmwiOiJkZW1vLWF1ZGlvcy9Hcm91cCAxLnBuZyIsImlhdCI6MTc0NDYyOTQ0OCwiZXhwIjoxNzc2MTY1NDQ4fQ.ZSFXe6hPDW2MH74Ypv4bpnjvQ1DbJZPLq8NPM0reVxg"
                   alt="ConversAILabs Logo"

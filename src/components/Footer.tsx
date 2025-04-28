@@ -110,7 +110,7 @@ const Footer = () => {
               <li>
                 <a 
                   href="#about" 
-                  className={`text-muted-foreground ${!isMobile ? 'hover:text-primary' : ''} focus:outline-none active:text-primary`}
+                  className={`text-muted-foreground text-primary`}
                   onClick={(e) => handleSectionClick(e, 'about')}
                 >
                   About Us
@@ -120,7 +120,7 @@ const Footer = () => {
                 <a 
                   href="#"
                   onClick={toggleContactInfo}
-                  className={`text-muted-foreground hover:text-primary`}
+                  className={`text-muted-foreground text-primary`}
                 >
                   Contact
                 </a>
