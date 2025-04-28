@@ -189,6 +189,7 @@ export default function VoiceAISaaSForm() {
                     <SelectItem value="support">Customer Support</SelectItem>
                     <SelectItem value="sales">Sales Calls</SelectItem>
                     <SelectItem value="reminders">Appointment Reminders</SelectItem>
+                    <SelectItem value="all_to_them">Others</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -232,36 +233,57 @@ export default function VoiceAISaaSForm() {
                 <Input type="email" onChange={(e) => handleInputChange('email', e.target.value)} />
               </div>
               <div>
-                <Label>Phone Number *</Label>
-                <div className="flex gap-2 items-center">
-                  <Select
-                    value={selectedCountry?.code}
-                    onValueChange={(code) => {
-                      const country = countries.find((c) => c.code === code);
-                      if (country) setSelectedCountry(country);
-                    }}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Code" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country.code} value={country.code}>
-                          {country.emoji} {country.dial_code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    className="flex-1"
-                    type="tel"
-                    placeholder="Enter phone number"
-                    onChange={(e) => {
-                      handleInputChange('phone', `${selectedCountry?.dial_code}${e.target.value}`);
-                    }}
-                  />
-                </div>
+  <Label>Phone Number *</Label>
+  <div className="flex gap-2 items-center">
+    <Select
+      value={selectedCountry?.code}
+      onValueChange={(code) => {
+        const country = countries.find((c) => c.code === code);
+        if (country) setSelectedCountry(country);
+      }}
+    >
+      <SelectTrigger className="w-28 overflow-hidden">
+        <SelectValue>
+          <div className="flex items-center">
+            <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+              <img 
+                src={`https://flagcdn.com/w40/${selectedCountry?.code.toLowerCase()}.png`} 
+                alt={selectedCountry?.name || "Flag"} 
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <span className="truncate">{selectedCountry?.dial_code}</span>
+          </div>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent className="max-h-60">
+        {countries.map((country) => (
+          <SelectItem key={country.code} value={country.code}>
+            <div className="flex items-center">
+              <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                <img 
+                  src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} 
+                  alt={country.name} 
+                  className="object-cover w-full h-full"
+                />
               </div>
+              <span>{country.dial_code}</span>
+              <span className="ml-2 text-xs text-gray-500 truncate">({country.name})</span>
+            </div>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <Input
+      className="flex-1"
+      type="tel"
+      placeholder="Enter phone number"
+      onChange={(e) => {
+        handleInputChange('phone', `${selectedCountry?.dial_code}${e.target.value}`);
+      }}
+    />
+  </div>
+</div>
               <DialogFooter>
                 <div className="flex flex-col gap-2">
                   <Button onClick={() => handleSubmit()}>Submit</Button>
@@ -302,40 +324,60 @@ export default function VoiceAISaaSForm() {
               />
             </div>
             <div>
-              <Label>Phone Number *</Label>
-              <div className="flex gap-2 items-center">
-                <Select
-                  value={selectedCountry?.code}
-                  onValueChange={(code) => {
-                    const country = countries.find((c) => c.code === code);
-                    if (country) setSelectedCountry(country);
-                  }}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        {country.emoji} {country.dial_code}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  className="flex-1"
-                  type="tel"
-                  placeholder="Enter phone number"
-                  onChange={(e) => {
-                    handleInputChange(
-                      'demo_phone',
-                      `${selectedCountry?.dial_code}${e.target.value}`,
-                    );
-                  }}
+  <Label>Phone Number *</Label>
+  <div className="flex gap-2 items-center">
+    <Select
+      value={selectedCountry?.code}
+      onValueChange={(code) => {
+        const country = countries.find((c) => c.code === code);
+        if (country) setSelectedCountry(country);
+      }}
+    >
+      <SelectTrigger className="w-28 overflow-hidden">
+        <SelectValue>
+          <div className="flex items-center">
+            <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+              <img 
+                src={`https://flagcdn.com/w40/${selectedCountry?.code.toLowerCase()}.png`} 
+                alt={selectedCountry?.name || "Flag"} 
+                className="object-cover w-full h-full"
+              />
+            </div>
+            <span className="truncate">{selectedCountry?.dial_code}</span>
+          </div>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent className="max-h-60">
+        {countries.map((country) => (
+          <SelectItem key={country.code} value={country.code}>
+            <div className="flex items-center">
+              <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                <img 
+                  src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} 
+                  alt={country.name} 
+                  className="object-cover w-full h-full"
                 />
               </div>
+              <span>{country.dial_code}</span>
+              <span className="ml-2 text-xs text-gray-500 truncate">({country.name})</span>
             </div>
-
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+    <Input
+      className="flex-1"
+      type="tel"
+      placeholder="Enter phone number"
+      onChange={(e) => {
+        handleInputChange(
+          'demo_phone',
+          `${selectedCountry?.dial_code}${e.target.value}`,
+        );
+      }}
+    />
+  </div>
+</div>
             <DialogFooter>
               <div className="flex flex-col gap-2 w-full">
                 <Button onClick={handleDemoCallSubmit} className="w-full" disabled={isLoading}>

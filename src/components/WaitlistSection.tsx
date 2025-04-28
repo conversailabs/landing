@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
 import {
   Select,
   SelectContent,
@@ -15,7 +14,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
-import { Search, Check, ChevronDown } from 'lucide-react';
+import { Check } from 'lucide-react';
 import countries from '@/data/countries.json';
 import { PlanInfo } from './PricingSection';
 
@@ -29,23 +28,42 @@ export default function WaitlistSection() {
 
   const { toast } = useToast();
 
+  // Function to set selected plan data
+  const setSelectedPlanData = (plan: PlanInfo) => {
+    setSelectedPlan(plan);
+    // Pre-populate the form with the selected plan
+    setFormData((prevData) => ({
+      ...prevData,
+      plan: plan.name,
+      billing: plan.isAnnual ? 'annual' : 'monthly',
+    }));
+  };
+
   // Get the selected plan from localStorage when component mounts
   useEffect(() => {
+    // First check localStorage for any saved plan
     const planData = localStorage.getItem('selectedPlan');
     if (planData) {
       try {
         const plan = JSON.parse(planData);
-        setSelectedPlan(plan);
-        // Pre-populate the form with the selected plan
-        setFormData((prevData) => ({
-          ...prevData,
-          plan: plan.name,
-          billing: plan.isAnnual ? 'annual' : 'monthly',
-        }));
+        setSelectedPlanData(plan);
       } catch (error) {
         console.error('Error parsing plan data from localStorage', error);
       }
     }
+
+    // Set up event listener for direct communication from PricingSection
+    const handlePlanSelected = (event: CustomEvent<PlanInfo>) => {
+      setSelectedPlanData(event.detail);
+    };
+
+    // Add event listener for custom event
+    document.addEventListener('planSelected', handlePlanSelected as EventListener);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      document.removeEventListener('planSelected', handlePlanSelected as EventListener);
+    };
   }, []);
 
   // Transform countries data for consistency
@@ -154,15 +172,31 @@ export default function WaitlistSection() {
 
             {/* Show selected plan info if available */}
             {selectedPlan && (
-              <div className="mt-4 p-3 bg-primary/10 rounded-md">
-                <p className="font-medium">Selected Plan: {selectedPlan.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {selectedPlan.price > 0
-                    ? `$${selectedPlan.price}/month, ${
-                        selectedPlan.isAnnual ? 'Annual' : 'Monthly'
-                      } billing`
-                    : 'Custom pricing'}
-                </p>
+              <div className="mt-4 p-4 bg-primary/10 rounded-md border border-primary/20">
+                <div className="flex flex-col space-y-2">
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 text-primary mr-2" />
+                    <p className="font-medium">Selected Plan: {selectedPlan.name}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <Check className="h-4 w-4 text-primary mr-2" />
+                    <p className="text-sm">
+                      {selectedPlan.price > 0
+                        ? `$${selectedPlan.price}/month, ${
+                            selectedPlan.isAnnual ? 'Annual' : 'Monthly'
+                          } billing`
+                        : 'Custom pricing'}
+                    </p>
+                  </div>
+                  {selectedPlan.id === 'starter' && (
+                    <div className="flex items-center">
+                      <Check className="h-4 w-4 text-primary mr-2" />
+                      <p className="text-sm font-medium text-green-600">
+                        Launch Special: $69/month for first 3 months
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -189,7 +223,7 @@ export default function WaitlistSection() {
                     <SelectItem value="support">Customer Support</SelectItem>
                     <SelectItem value="sales">Sales Calls</SelectItem>
                     <SelectItem value="reminders">Appointment Reminders</SelectItem>
-                    <SelectItem value="all_to_them">All Of Them</SelectItem>
+                    <SelectItem value="all_to_them">Others</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -260,13 +294,34 @@ export default function WaitlistSection() {
                       if (country) setSelectedCountry(country);
                     }}
                   >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Code" />
+                    <SelectTrigger className="w-28 overflow-hidden">
+                      <SelectValue>
+                        <div className="flex items-center">
+                          <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                            <img 
+                              src={`https://flagcdn.com/w40/${selectedCountry?.code.toLowerCase()}.png`} 
+                              alt={selectedCountry?.name || "Flag"} 
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                          <span className="truncate">{selectedCountry?.dial_code}</span>
+                        </div>
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-60">
                       {countries.map((country) => (
                         <SelectItem key={country.code} value={country.code}>
-                          {country.emoji} {country.dial_code}
+                          <div className="flex items-center">
+                            <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                              <img 
+                                src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} 
+                                alt={country.name} 
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                            <span>{country.dial_code}</span>
+                            <span className="ml-2 text-xs text-gray-500 truncate">({country.name})</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>

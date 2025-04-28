@@ -1,3 +1,5 @@
+// PricingSection.jsx
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -113,6 +115,12 @@ const PricingSection: React.FC = () => {
 
     // Store selected plan in localStorage
     localStorage.setItem('selectedPlan', JSON.stringify(planInfo));
+    
+    // Create and dispatch a custom event to notify the WaitlistSection
+    const event = new CustomEvent('planSelected', { 
+      detail: planInfo 
+    });
+    document.dispatchEvent(event);
     
     // Navigate to waitlist section
     window.location.href = '#waitlist';
