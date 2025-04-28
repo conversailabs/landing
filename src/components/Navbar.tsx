@@ -11,8 +11,23 @@ const openDemoFormEvent = new CustomEvent('openAIDemoForm');
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault(); // Prevent default anchor behavior
     setIsOpen(false);
+    
+    // Find the section element
+    const section = document.getElementById(sectionId);
+    if (section) {
+      // Calculate position to scroll to (accounting for navbar height plus some padding)
+      const navbarHeight = document.querySelector('nav')?.offsetHeight || 0;
+      const scrollPosition = section.offsetTop - navbarHeight - 1; // 20px padding instead of 60px
+      
+      // Smooth scroll to the calculated position
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: 'smooth'
+      });
+    }
   };
 
   // Function to handle "Experience AI Calling" button click
@@ -39,16 +54,16 @@ const Navbar = () => {
         </a>
 
         <div className="hidden md:flex items-center space-x-6 flex-1 justify-end">
-          <a href="#features" className="hover:text-primary">
+          <a href="#features" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'features')}>
             Features
           </a>
-          <a href="#pricing" className="hover:text-primary">
+          <a href="#pricing" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'pricing')}>
             Pricing
           </a>
-          <a href="#about" className="hover:text-primary">
+          <a href="#about" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'about')}>
             About Us
           </a>
-          <a href="#faq" className="hover:text-primary">
+          <a href="#faq" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'faq')}>
             FAQs
           </a>
           {/* Updated to use onClick instead of href */}
@@ -62,19 +77,32 @@ const Navbar = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="md:hidden">
-              <SheetTitle className="text-left">Navigation Menu</SheetTitle>
-              <div className="grid gap-4 py-4 mt-6">
-                <a href="#features" className="hover:text-primary" onClick={handleLinkClick}>
+            <SheetContent side="right" className="md:hidden pt-0">
+              {/* Keep SheetTitle but visually hide it for accessibility */}
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <div className="flex items-center mb-4 pt-0">
+                <img
+                  src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/sign/demo-audios/Group%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcyMzJmNjk4LTBiYTAtNGU4Yi1iZWMxLWM3NDgyYTM4Y2RjOSJ9.eyJ1cmwiOiJkZW1vLWF1ZGlvcy9Hcm91cCAxLnBuZyIsImlhdCI6MTc0NDYyOTQ0OCwiZXhwIjoxNzc2MTY1NDQ4fQ.ZSFXe6hPDW2MH74Ypv4bpnjvQ1DbJZPLq8NPM0reVxg"
+                  alt="ConversAILabs Logo"
+                  className="h-6 mr-2"
+                  onError={(e) => {
+                    console.log('Image failed to load in mobile menu, suppressing error');
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
+                <span className="text-lg font-bold">ConversAILabs</span>
+              </div>
+              <div className="grid gap-4 py-3">
+                <a href="#features" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'features')}>
                   Features
                 </a>
-                <a href="#pricing" className="hover:text-primary" onClick={handleLinkClick}>
+                <a href="#pricing" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'pricing')}>
                   Pricing
                 </a>
-                <a href="#about" className="hover:text-primary" onClick={handleLinkClick}>
+                <a href="#about" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'about')}>
                   About Us
                 </a>
-                <a href="#faq" className="hover:text-primary" onClick={handleLinkClick}>
+                <a href="#faq" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'faq')}>
                   FAQs
                 </a>
                 {/* Updated to use onClick instead of href */}

@@ -170,36 +170,6 @@ export default function WaitlistSection() {
               Automate calls and save 20+ hours weekly with personalized AI voice agents
             </p>
 
-            {/* Show selected plan info if available */}
-            {selectedPlan && (
-              <div className="mt-4 p-4 bg-primary/10 rounded-md border border-primary/20">
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center">
-                    <Check className="h-4 w-4 text-primary mr-2" />
-                    <p className="font-medium">Selected Plan: {selectedPlan.name}</p>
-                  </div>
-                  <div className="flex items-center">
-                    <Check className="h-4 w-4 text-primary mr-2" />
-                    <p className="text-sm">
-                      {selectedPlan.price > 0
-                        ? `$${selectedPlan.price}/month, ${
-                            selectedPlan.isAnnual ? 'Annual' : 'Monthly'
-                          } billing`
-                        : 'Custom pricing'}
-                    </p>
-                  </div>
-                  {selectedPlan.id === 'starter' && (
-                    <div className="flex items-center">
-                      <Check className="h-4 w-4 text-primary mr-2" />
-                      <p className="text-sm font-medium text-green-600">
-                        Launch Special: $69/month for first 3 months
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
             <div className="relative w-full h-1 bg-gray-300 rounded-full mt-4">
               <div
                 className="absolute h-1 bg-primary rounded-full transition-all duration-300"
