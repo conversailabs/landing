@@ -108,14 +108,15 @@ const KeyFeaturesSection = () => {
   };
 
   return (
-    <motion.section
+    <motion.section 
       className="container mx-auto flex min-h-[350px] w-full max-w-7xl flex-col items-center justify-center gap-y-12 p-6 sm:py-14 lg:gap-y-16"
       variants={containerVariants}
       animate="visible"
       initial="hidden"
+      id="features"
     >
       <div className="flex flex-col items-center">
-        <motion.div
+        {/* <motion.div
           className="relative mx-auto inline-flex h-8 w-min select-none overflow-hidden rounded-full px-[1.5px] pb-[1px] pt-[2px] focus:outline-none"
           variants={{
             visible: {
@@ -132,20 +133,13 @@ const KeyFeaturesSection = () => {
           <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-background px-4 py-1 text-sm font-medium text-foreground backdrop-blur-3xl">
             Features
           </span>
-        </motion.div>
+        </motion.div> */}
         <motion.h2
           className="leading-[1.1]! mb-0 mt-6 text-center text-3xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-center"
           variants={childrenVariants}
         >
-          Unlock the Power of Voice AI
+          Key Features
         </motion.h2>
-        <motion.p
-          className="mt-4 max-w-lg px-2 text-center text-lg text-muted-foreground"
-          variants={childrenVariants}
-        >
-          Build smarter conversations, automate workflows, and drive growth with our next-generation
-          voice agents.
-        </motion.p>
       </div>
       <motion.div
         className="mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
