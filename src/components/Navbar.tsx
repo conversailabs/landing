@@ -6,7 +6,7 @@ import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/s
 import { Menu } from 'lucide-react';
 
 // Create a custom event for opening the demo form
-const openDemoFormEvent = new CustomEvent('openAIDemoForm');
+
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +32,7 @@ const Navbar = () => {
 
   // Function to handle "Experience AI Calling" button click
   const handleDemoButtonClick = () => {
+    const openDemoFormEvent = new CustomEvent('openAIDemoForm');
     // Dispatch custom event to trigger the demo form
     document.dispatchEvent(openDemoFormEvent);
     setIsOpen(false); // Close the mobile menu if open

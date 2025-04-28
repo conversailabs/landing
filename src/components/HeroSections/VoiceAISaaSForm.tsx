@@ -104,39 +104,90 @@ export default function VoiceAISaaSForm() {
   };
 
   const handleDemoCallSubmit = async () => {
+    let abortError = false;
+    
     try {
       setIsLoading(true);
-
-      const response = await axios.post('/api/make-call', {
-        from_number: '+16812011361',
-        to_number: formData.demo_phone,
-        override_agent_id: 'agent_70dbec3ad930da72a639c27fad',
-        metadata: {
-          name: formData.demo_name,
-          number: formData.demo_phone,
-        },
-        retell_llm_dynamic_variables: {
-          name: formData.demo_name,
-          number: formData.demo_phone,
-          current_time: new Date().toISOString(),
-        },
+      
+      // Show immediate feedback that call is being initiated
+      toast({
+        title: 'Initiating call',
+        description: 'Setting up your personalized demo call...',
       });
-
+      
+      // Use a simple timeout instead of AbortController
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          abortError = true;
+          reject(new Error('Timeout: The request took too long to complete'));
+          
+          // When aborting, also set loading state to false
+          setIsLoading(false);
+        }, 15000);
+      });
+      
+      // Race between the actual request and the timeout
+      const response = await Promise.race([
+        axios.post('/api/make-call', {
+          from_number: '+16812011361',
+          to_number: formData.demo_phone,
+          override_agent_id: 'agent_70dbec3ad930da72a639c27fad',
+          metadata: {
+            name: formData.demo_name || 'Guest',
+            number: formData.demo_phone,
+          },
+          retell_llm_dynamic_variables: {
+            name: formData.demo_name || 'Guest',
+            number: formData.demo_phone,
+            current_time: new Date().toISOString(),
+          }
+        }),
+        timeoutPromise
+      ]);
+  
+      // Only show success toast if we actually got a response (not timed out)
       toast({
         title: 'Incoming AI call',
         description: 'Watch your phone — your personalized demo is about to begin!',
+        duration: 5000, // Show for 5 seconds
       });
+      
+      // Close the form after successful call initiation
       setShowDemoForm(false);
+      
+      // Reset form data
+      setFormData({});
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.error?.message || error.message || 'An unexpected error occurred';
-      toast({
-        title: 'Failed to send call',
-        description: errorMessage,
-        variant: 'destructive',
-      });
+      // If it's a timeout error (from our Promise.race)
+      if (abortError) {
+        toast({
+          title: 'Request timeout',
+          description: 'The call request is taking too long. Please try again later.',
+          variant: 'destructive',
+        });
+      } else {
+        // Regular error handling with more user-friendly messages
+        let errorMessage = 'An unexpected error occurred';
+        
+       
+        if (error.response?.data?.error?.message) {
+          errorMessage = error.response.data.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        toast({
+          title: 'Failed to send call',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
     } finally {
-      setIsLoading(false);
+      // Only set loading to false if it wasn't a timeout
+      // (timeout already sets loading to false)
+      if (!abortError) {
+        setIsLoading(false);
+      }
     }
   };
 

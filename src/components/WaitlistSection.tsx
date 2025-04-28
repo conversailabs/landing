@@ -119,8 +119,7 @@ export default function WaitlistSection() {
           name: formData.name,
           email: formData.email,
           phone: selectedCountry?.dial_code + ' ' + formData.phone,
-          selected_plan: formData.plan || '',
-          billing_cycle: formData.billing || '',
+      
         },
       ]);
 
