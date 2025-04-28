@@ -143,9 +143,18 @@ export default function VoiceAISaaSForm() {
   return (
     <div className="flex flex-col items-center justify-center p-4 space-y-6">
       <div className="flex flex-col md:flex-row gap-4">
-        <Button onClick={() => setShowCustomForm(true)}>Get your custom voice AI solutions</Button>
-        <Button onClick={() => setShowDemoForm(true)} variant="outline">
+        <Button
+          onClick={() => setShowDemoForm(true)}
+          variant="outline"
+          className="border-2 border-primary text-lg md:text-xl font-semibold"
+        >
           Experience AI calling
+        </Button>
+        <Button
+          onClick={() => setShowCustomForm(true)}
+          className="text-lg md:text-xl font-semibold"
+        >
+          Get your custom voice AI solutions
         </Button>
       </div>
 
