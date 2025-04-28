@@ -11,8 +11,28 @@ import {
   PlugZap,
 } from 'lucide-react'; // or your icon set
 import { useEffect, useRef, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { PRODUCT_NAME } from '@/lib/config';
+import { motion } from 'framer-motion';
+
+// Add custom CSS for mobile active state
+const customStyles = `
+@media (max-width: 640px) {
+  .mobile-active {
+    border-color: hsl(var(--primary)) !important;
+    border-width: 2px !important;
+    background-color: rgba(var(--primary-rgb), 0.05);
+  }
+  
+  .mobile-active .bg-gradient-to-t {
+    opacity: 1 !important;
+  }
+  
+  .group\/card {
+    margin: 0.2 !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+  }
+}
+`;
 
 const features = [
   {
@@ -56,6 +76,7 @@ const features = [
     icon: <PlugZap className="size-6 text-muted-foreground" />,
   },
 ];
+
 const containerVariants = {
   visible: {
     transition: {
@@ -93,19 +114,29 @@ const childrenVariants = {
 };
 
 const KeyFeaturesSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-
-    const rect = containerRef.current.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
+  const [activeCardIndex, setActiveCardIndex] = useState<number | null>(null);
+  
+  // Function to handle card click/tap on mobile
+  const handleCardClick = (event: React.MouseEvent<HTMLDivElement>, index: number) => {
+    // Only apply for mobile view
+    if (window.innerWidth <= 640) {
+      event.stopPropagation(); // Prevent bubbling to document click handler
+      setActiveCardIndex(prev => prev === index ? null : index);
+    }
   };
+
+  // Add a document click handler to reset active card when clicking elsewhere
+  useEffect(() => {
+    const handleDocumentClick = () => {
+      setActiveCardIndex(null);
+    };
+    
+    document.addEventListener('click', handleDocumentClick);
+    
+    return () => {
+      document.removeEventListener('click', handleDocumentClick);
+    };
+  }, []);
 
   return (
     <motion.section 
@@ -115,25 +146,8 @@ const KeyFeaturesSection = () => {
       initial="hidden"
       id="features"
     >
+      <style dangerouslySetInnerHTML={{ __html: customStyles }} />
       <div className="flex flex-col items-center">
-        {/* <motion.div
-          className="relative mx-auto inline-flex h-8 w-min select-none overflow-hidden rounded-full px-[1.5px] pb-[1px] pt-[2px] focus:outline-none"
-          variants={{
-            visible: {
-              opacity: 1,
-              y: 0,
-            },
-            hidden: {
-              opacity: 0,
-              y: 2,
-            },
-          }}
-        >
-          <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,hsl(var(--primary))_0%,hsl(var(--muted))_50%,hsl(var(--primary))_100%)]" />
-          <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-background px-4 py-1 text-sm font-medium text-foreground backdrop-blur-3xl">
-            Features
-          </span>
-        </motion.div> */}
         <motion.h2
           className="leading-[1.1]! mb-0 mt-6 text-center text-3xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-center"
           variants={childrenVariants}
@@ -142,23 +156,14 @@ const KeyFeaturesSection = () => {
         </motion.h2>
       </div>
       <motion.div
-        className="mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        ref={containerRef}
-        transition={{ duration: 0.6, ease: 'easeInOut' }}
-        style={{
-          background: isHovering
-            ? `radial-gradient(200px circle at ${mousePosition.x}px ${mousePosition.y}px, hsl(var(--primary)) -200%, transparent 100%)`
-            : 'none',
-        }}
+        className="mx-auto grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-0"
       >
         {features.map((feature, index) => (
           <motion.div
             className={cn(
-              'group/card relative flex h-full w-full max-w-7xl flex-col overflow-hidden border-border py-10',
+              'group/card relative flex h-full w-full max-w-7xl flex-col overflow-hidden border border-border py-6 sm:py-10 transition-all duration-300 hover:border-primary hover:border-2 cursor-pointer m-0',
               {
+                'mobile-active': activeCardIndex === index,
                 'lg:border-t': index % 3 === 0 && index < 4,
                 'lg:border-b':
                   ((index % 4 === 0 || index === features.length - 1) && index >= 4) ||
@@ -168,6 +173,7 @@ const KeyFeaturesSection = () => {
                 'lg:border-r': (index >= 4 && index % 4 === 0) || index === 0,
               },
             )}
+            onClick={(e) => handleCardClick(e, index)}
             key={index}
             variants={{
               visible: {
@@ -183,32 +189,10 @@ const KeyFeaturesSection = () => {
             }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
           >
-            {/* Animated border overlay */}
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
-                {/* Top border */}
-                <div className="absolute left-0 top-0 h-px w-full">
-                  <div className="absolute h-full w-full animate-border-flow bg-gradient-to-r from-transparent via-primary to-transparent" />
-                </div>
-                {/* Right border */}
-                <div className="absolute right-0 top-0 h-full w-px">
-                  <div className="absolute h-full w-full animate-border-flow-vertical bg-gradient-to-b from-transparent via-primary to-transparent" />
-                </div>
-                {/* Bottom border */}
-                <div className="absolute bottom-0 left-0 h-px w-full">
-                  <div className="absolute h-full w-full animate-border-flow-reverse bg-gradient-to-r from-transparent via-primary to-transparent" />
-                </div>
-                {/* Left border */}
-                <div className="absolute left-0 top-0 h-full w-px">
-                  <div className="absolute h-full w-full animate-border-flow-vertical-reverse bg-gradient-to-b from-transparent via-primary to-transparent" />
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-primary/35 to-transparent opacity-0 transition duration-200 group-hover/card:opacity-100 dark:from-primary/30"></div>
+            <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-primary/10 to-transparent opacity-0 transition duration-200 group-hover/card:opacity-100 dark:from-primary/10"></div>
             <div
               className={cn(
-                'mb-4 mt-2 px-10 transition-all duration-200 group-hover/card:translate-x-2',
+                'mb-2 sm:mb-4 mt-2 px-2 sm:px-10 transition-all duration-200 group-hover/card:translate-x-1',
                 {
                   'lg:group-hover/card:-translate-x-2 lg:group-hover/card:-translate-y-0':
                     index === 2 || index === 6,
@@ -225,7 +209,7 @@ const KeyFeaturesSection = () => {
             </div>
             <div
               className={cn(
-                'z-10 px-10 transition-all duration-200 group-hover/card:translate-x-2',
+                'z-10 px-2 sm:px-10 transition-all duration-200 group-hover/card:translate-x-1',
                 {
                   'lg:group-hover/card:-translate-x-2 lg:group-hover/card:-translate-y-0':
                     index === 2 || index === 6,
@@ -238,24 +222,24 @@ const KeyFeaturesSection = () => {
                 },
               )}
             >
-              <h2 className="relative mt-0 text-left text-xl font-bold text-foreground">
+              <h2 className="relative mt-0 text-left text-lg sm:text-xl font-bold text-foreground">
                 {feature.title}
               </h2>
-              <p className="text-md mt-2 max-w-xs pr-4 text-left text-gray-600">
+              <p className="text-sm sm:text-md mt-1 sm:mt-2 max-w-xs pr-1 sm:pr-4 text-left text-gray-600">
                 {feature.description}
               </p>
             </div>
             <div
               className={cn(
-                'absolute bg-neutral-700 transition-all duration-200 group-hover/card:h-[0.4rem] group-hover/card:bg-primary',
+                'absolute left-0 bg-neutral-700 transition-all duration-200 group-hover/card:h-[0.4rem] group-hover/card:bg-primary',
                 {
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:left-[calc(50%-3rem)] lg:top-0 lg:h-1 lg:w-[6rem] lg:rounded-bl-full lg:rounded-br-full lg:rounded-tl-none lg:rounded-tr-none lg:group-hover/card:h-1 lg:group-hover/card:w-[6.5rem]':
+                  'h-[3rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[3.5rem] lg:left-[calc(50%-3rem)] lg:top-0 lg:h-1 lg:w-[6rem] lg:rounded-bl-full lg:rounded-br-full lg:rounded-tl-none lg:rounded-tr-none lg:group-hover/card:h-1 lg:group-hover/card:w-[6.5rem]':
                     index === 0 || index === 3,
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:left-0 lg:top-[calc(50%-3rem)]':
+                  'h-[3rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[3.5rem] lg:left-0 lg:top-[calc(50%-3rem)]':
                     index === 1 || index === 5,
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:right-0 lg:top-[calc(50%-3rem)] lg:rounded-bl-full lg:rounded-br-none lg:rounded-tl-full lg:rounded-tr-none':
+                  'h-[3rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[3.5rem] lg:right-0 lg:top-[calc(50%-3rem)] lg:rounded-bl-full lg:rounded-br-none lg:rounded-tl-full lg:rounded-tr-none':
                     index === 2 || index === 6,
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:bottom-0 lg:left-[calc(50%-3rem)] lg:h-1 lg:w-[6rem] lg:rounded-bl-none lg:rounded-br-none lg:rounded-tl-full lg:rounded-tr-full lg:group-hover/card:h-1 lg:group-hover/card:w-[6.5rem]':
+                  'h-[3rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[3.5rem] lg:bottom-0 lg:left-[calc(50%-3rem)] lg:h-1 lg:w-[6rem] lg:rounded-bl-none lg:rounded-br-none lg:rounded-tl-full lg:rounded-tr-full lg:group-hover/card:h-1 lg:group-hover/card:w-[6.5rem]':
                     index === 4 || index === features.length - 1,
                 },
               )}
