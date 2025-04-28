@@ -57,8 +57,8 @@ export async function POST(req: NextRequest) {
         }
       }
     );
-
-    await logCall(to_number);
+    const name = metadata?.name || retell_llm_dynamic_variables?.name || null;
+    await logCall(to_number,name);
 
     return NextResponse.json(response.data, { status: response.status });
 
