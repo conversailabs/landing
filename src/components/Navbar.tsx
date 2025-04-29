@@ -7,20 +7,48 @@ import { Menu } from 'lucide-react';
 
 // Create a custom event for opening the demo form
 
-
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleLinkClick = () => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
+    e.preventDefault(); // Prevent default anchor behavior
+    e.stopPropagation(); // Stop event propagation to prevent reopening
+    
+    // Close the sheet first
     setIsOpen(false);
+    
+    // Delay the scroll slightly to allow the sheet to close
+    setTimeout(() => {
+      // Find the section element
+      const section = document.getElementById(sectionId);
+      if (section) {
+        // Calculate position to scroll to (accounting for navbar height plus some padding)
+        const navbarHeight = document.querySelector('nav')?.offsetHeight || 0;
+        const scrollPosition = section.offsetTop - navbarHeight - 1; // Small padding
+        
+        // Smooth scroll to the calculated position
+        window.scrollTo({
+          top: scrollPosition,
+          behavior: 'smooth'
+        });
+      }
+    }, 300); // Short delay to ensure the sheet closes first
   };
 
   // Function to handle "Experience AI Calling" button click
-  const handleDemoButtonClick = () => {
-    const openDemoFormEvent = new CustomEvent('openAIDemoForm');
-    // Dispatch custom event to trigger the demo form
-    document.dispatchEvent(openDemoFormEvent);
-    setIsOpen(false); // Close the mobile menu if open
+  const handleDemoButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent event bubbling
+    
+    // Close the sheet first
+    setIsOpen(false);
+    
+    // Slight delay to ensure sheet closes before opening the form
+    setTimeout(() => {
+      const openDemoFormEvent = new CustomEvent('openAIDemoForm');
+      // Dispatch custom event to trigger the demo form
+      document.dispatchEvent(openDemoFormEvent);
+    }, 300);
   };
 
   return (
@@ -40,16 +68,16 @@ const Navbar = () => {
         </a>
 
         <div className="hidden md:flex items-center space-x-6 flex-1 justify-end">
-          <a href="#features" className="hover:text-primary">
+          <a href="#features" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'features')}>
             Features
           </a>
-          <a href="#pricing" className="hover:text-primary">
+          <a href="#pricing" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'pricing')}>
             Pricing
           </a>
-          <a href="#about" className="hover:text-primary">
+          <a href="#about" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'about')}>
             About Us
           </a>
-          <a href="#faq" className="hover:text-primary">
+          <a href="#faq" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'faq')}>
             FAQs
           </a>
           {/* Updated to use onClick instead of href */}
@@ -63,9 +91,10 @@ const Navbar = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="md:hidden">
-              <SheetTitle className="text-left">Navigation Menu</SheetTitle>
-              <div className="flex items-center mb-6">
+            <SheetContent side="right" className="md:hidden pt-0">
+              {/* Keep SheetTitle but visually hide it for accessibility */}
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <div className="flex items-center mb-3 pt-4 mt-2 px-1">
                 <img
                   src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/sign/demo-audios/Group%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcyMzJmNjk4LTBiYTAtNGU4Yi1iZWMxLWM3NDgyYTM4Y2RjOSJ9.eyJ1cmwiOiJkZW1vLWF1ZGlvcy9Hcm91cCAxLnBuZyIsImlhdCI6MTc0NDYyOTQ0OCwiZXhwIjoxNzc2MTY1NDQ4fQ.ZSFXe6hPDW2MH74Ypv4bpnjvQ1DbJZPLq8NPM0reVxg"
                   alt="ConversAILabs Logo"
@@ -77,21 +106,45 @@ const Navbar = () => {
                 />
                 <span className="text-lg font-bold">ConversAILabs</span>
               </div>
-              <div className="grid gap-4 py-4">
-                <a href="#features" className="hover:text-primary" onClick={handleLinkClick}>
+              <div className="grid gap-4 py-3">
+                <a 
+                  href="#features" 
+                  className="hover:text-primary active:text-primary" 
+                  onClick={(e) => handleLinkClick(e, 'features')}
+                  onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
+                >
                   Features
                 </a>
-                <a href="#pricing" className="hover:text-primary" onClick={handleLinkClick}>
+                <a 
+                  href="#pricing" 
+                  className="hover:text-primary active:text-primary" 
+                  onClick={(e) => handleLinkClick(e, 'pricing')}
+                  onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
+                >
                   Pricing
                 </a>
-                <a href="#about" className="hover:text-primary" onClick={handleLinkClick}>
+                <a 
+                  href="#about" 
+                  className="hover:text-primary active:text-primary" 
+                  onClick={(e) => handleLinkClick(e, 'about')}
+                  onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
+                >
                   About Us
                 </a>
-                <a href="#faq" className="hover:text-primary" onClick={handleLinkClick}>
+                <a 
+                  href="#faq" 
+                  className="hover:text-primary active:text-primary" 
+                  onClick={(e) => handleLinkClick(e, 'faq')}
+                  onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
+                >
                   FAQs
                 </a>
-                {/* Updated to use onClick instead of href */}
-                <Button className="w-full mt-2" onClick={handleDemoButtonClick}>
+                {/* Updated to use onClick with stopPropagation */}
+                <Button 
+                  className="w-full mt-2" 
+                  onClick={handleDemoButtonClick}
+                  onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
+                >
                   Experience AI Calling
                 </Button>
               </div>
