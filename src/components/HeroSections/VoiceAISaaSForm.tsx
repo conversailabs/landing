@@ -341,8 +341,8 @@ export default function VoiceAISaaSForm() {
           variant="outline"
           className="border-2 border-primary text-lg md:text-xl font-semibold whitespace-nowrap flex items-center gap-2"
         >
-          <Phone size={20} className="text-primary fill-primary" /> {/* Added phone icon with primary fill */}
-          Talk to Our Voice AI
+          <Phone size={20} className="text-primary fill-primary" />
+          <span className="text-primary">Talk to Our Voice AI</span>
         </Button>
         <Button
           onClick={handleOpenCustomForm}
