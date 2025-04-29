@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
 
@@ -74,7 +74,7 @@ const PricingSection: React.FC = () => {
             </span>
           </div>
           
-          {/* Updated Free Trial Banner */}
+          {/* Free Trial Banner */}
           <div className="bg-primary/10 border border-primary/20 p-4 mb-6 w-full mx-auto rounded-lg relative lg:max-w-none">
             <div className="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold px-2 py-0.5 rounded-md">
               NEW
@@ -88,10 +88,10 @@ const PricingSection: React.FC = () => {
           </div>
         </div>
 
-        {/* Modified grid with better mobile spacing */}
+        {/* Pricing cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 w-full mx-auto">
           {/* Starter Plan */}
-          <div className="relative mb-6 md:mb-0"> {/* Wrapper div with margin-bottom for mobile */}
+          <div className="relative mb-6 md:mb-0">
             <Card 
               className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
                 selectedPlan === 0 
@@ -102,7 +102,7 @@ const PricingSection: React.FC = () => {
             >
               <div className="absolute -top-3 left-0 right-0 flex justify-center">
                 <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                  14-DAYS FREE TRIAL
+                  14-DAY FREE TRIAL
                 </div>
               </div>
               <CardHeader>
@@ -131,14 +131,14 @@ const PricingSection: React.FC = () => {
               </CardContent>
               <CardFooter className="pt-6">
                 <a href="#waitlist" className="w-full">
-                  <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
+                  <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
                 </a>
               </CardFooter>
             </Card>
           </div>
 
           {/* Professional Plan */}
-          <div className="relative mb-6 md:mb-0"> {/* Wrapper div with margin-bottom for mobile */}
+          <div className="relative mb-6 md:mb-0">
             <Card 
               className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
                 selectedPlan === 1 
@@ -149,7 +149,7 @@ const PricingSection: React.FC = () => {
             >
               <div className="absolute -top-3 left-0 right-0 flex justify-center">
                 <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                  14-DAYS FREE TRIAL
+                  14-DAY FREE TRIAL
                 </div>
               </div>
               <CardHeader>
@@ -180,14 +180,14 @@ const PricingSection: React.FC = () => {
               </CardContent>
               <CardFooter className="pt-6">
                 <a href="#waitlist" className="w-full">
-                  <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
+                  <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
                 </a>
               </CardFooter>
             </Card>
           </div>
 
           {/* Enterprise Plan */}
-          <div className="relative"> {/* Wrapper div */}
+          <div className="relative">
             <Card 
               className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
                 selectedPlan === 2 
@@ -198,7 +198,7 @@ const PricingSection: React.FC = () => {
             >
               <div className="absolute -top-3 left-0 right-0 flex justify-center">
                 <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                  14-DAYS FREE TRIAL
+                  14-DAY FREE TRIAL
                 </div>
               </div>
               <CardHeader>
@@ -225,7 +225,7 @@ const PricingSection: React.FC = () => {
               </CardContent>
               <CardFooter className="pt-6">
                 <a href="#waitlist" className="w-full">
-                  <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
+                  <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
                 </a>
               </CardFooter>
             </Card>
