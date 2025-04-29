@@ -9,11 +9,22 @@ import {
   Bot,
   ShieldCheck,
   PlugZap,
-} from 'lucide-react'; // or your icon set
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
+} from 'lucide-react';
+import { FC } from 'react';
 
-const features = [
+// Common text styles for reusability
+const titleStyles = "text-left text-xl font-bold text-foreground";
+const descriptionStyles = "mt-2 text-left text-gray-600";
+
+// Define feature interface for type safety
+interface Feature {
+  title: string;
+  description: string;
+  icon: JSX.Element;
+}
+
+// Features array remains the same
+const features: Feature[] = [
   {
     title: 'Natural Voice Conversations',
     description: 'Realistic, human-like voices with emotion, tone, and multilingual support.',
@@ -56,150 +67,44 @@ const features = [
   },
 ];
 
-const containerVariants = {
-  visible: {
-    transition: {
-      delayChildren: 0.5,
-      staggerChildren: 0.5,
-    },
-  },
-  hidden: {
-    transition: {
-      delayChildren: 0.5,
-      staggerChildren: 0.5,
-    },
-  },
-};
-
-const childrenVariants = {
-  visible: {
-    opacity: 1,
-    y: 0,
-    filter: 'blur(0px)',
-    transition: {
-      duration: 0.6,
-      ease: 'easeInOut',
-    },
-  },
-  hidden: {
-    opacity: 0,
-    y: 10,
-    filter: 'blur(5px)',
-    transition: {
-      duration: 0.6,
-      ease: 'easeInOut',
-    },
-  },
-};
-
-const KeyFeaturesSection = () => {
+const KeyFeaturesSection: FC = () => {
   return (
-    <motion.section 
+    <section 
       className="container mx-auto flex min-h-[350px] w-full max-w-7xl flex-col items-center justify-center gap-y-12 p-6 sm:py-14 lg:gap-y-16"
-      variants={containerVariants}
-      animate="visible"
-      initial="hidden"
       id="features"
     >
       <div className="flex flex-col items-center">
-        <motion.h2
-          className="leading-[1.1]! mb-0 mt-6 text-center text-3xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-center"
-          variants={childrenVariants}
-        >
+        <h2 className="mb-4 mt-6 text-center text-3xl font-semibold tracking-tight text-foreground leading-tight md:text-5xl lg:text-center">
           Key Features
-        </motion.h2>
+        </h2>
       </div>
-      <motion.div
-        className="mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-      >
+      
+      <div className="mx-auto grid w-full grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {features.map((feature, index) => (
-          <motion.div
-            className={cn(
-              'group/card relative flex h-full w-full max-w-7xl flex-col overflow-hidden border-border py-10 transition-all duration-300 hover:border-primary hover:border-2',
-              {
-                'lg:border-t': index % 3 === 0 && index < 4,
-                'lg:border-b':
-                  ((index % 4 === 0 || index === features.length - 1) && index >= 4) ||
-                  index === 2 ||
-                  index === 1,
-                'lg:border-l': (index >= 4 && index === features.length - 1) || index === 3,
-                'lg:border-r': (index >= 4 && index % 4 === 0) || index === 0,
-              },
-            )}
-            key={index}
-            variants={{
-              visible: {
-                opacity: 1,
-                y: 0,
-                filter: 'blur(0px)',
-              },
-              hidden: {
-                opacity: 0,
-                y: 10,
-                filter: 'blur(5px)',
-              },
-            }}
-            transition={{ duration: 0.6, ease: 'easeInOut' }}
+          // Removed conditional border styling that was causing issues
+          <div
+            className="group relative flex h-full w-full flex-col overflow-hidden rounded-lg border border-gray-200 p-6 transition-all duration-300 hover:border-primary"
+            key={feature.title}
           >
-            <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-primary/10 to-transparent opacity-0 transition duration-200 group-hover/card:opacity-100 dark:from-primary/10"></div>
-            <div
-              className={cn(
-                'mb-4 mt-2 px-10 transition-all duration-200 group-hover/card:translate-x-2',
-                {
-                  'lg:group-hover/card:-translate-x-2 lg:group-hover/card:-translate-y-0':
-                    index === 2 || index === 6,
-                  'lg:group-hover/card:-translate-y-0 lg:group-hover/card:translate-x-2':
-                    index === 1 || index === 5,
-                  'lg:group-hover/card:-translate-y-2 lg:group-hover/card:translate-x-0':
-                    index === 4 || index === features.length - 1,
-                  'lg:group-hover/card:translate-x-0 lg:group-hover/card:translate-y-2':
-                    index === 0 || index === 3,
-                },
-              )}
-            >
+            {/* Improved gradient with better visibility on all screens */}
+            <div className="absolute inset-0 h-full w-full bg-gradient-to-b from-transparent to-primary/15 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+            
+            <div className="mb-4">
               {feature.icon}
             </div>
-            <div
-              className={cn(
-                'z-10 px-10 transition-all duration-200 group-hover/card:translate-x-2',
-                {
-                  'lg:group-hover/card:-translate-x-2 lg:group-hover/card:-translate-y-0':
-                    index === 2 || index === 6,
-                  'lg:group-hover/card:-translate-y-0 lg:group-hover/card:translate-x-2':
-                    index === 1 || index === 5,
-                  'lg:group-hover/card:-translate-y-2 lg:group-hover/card:translate-x-0':
-                    index === 4 || index === features.length - 1,
-                  'lg:group-hover/card:translate-x-0 lg:group-hover/card:translate-y-2':
-                    index === 0 || index === 3,
-                },
-              )}
-            >
-              <h2 className="relative mt-0 text-left text-xl font-bold text-foreground">
+            
+            <div className="relative z-10">
+              <h3 className={titleStyles}>
                 {feature.title}
-              </h2>
-              <p className="text-md mt-2 max-w-xs pr-4 text-left text-gray-600">
+              </h3>
+              <p className={descriptionStyles}>
                 {feature.description}
               </p>
             </div>
-            <div
-              className={cn(
-                'absolute bg-neutral-700 transition-all duration-200 group-hover/card:h-[0.4rem] group-hover/card:bg-primary',
-                {
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:left-[calc(50%-3rem)] lg:top-0 lg:h-1 lg:w-[6rem] lg:rounded-bl-full lg:rounded-br-full lg:rounded-tl-none lg:rounded-tr-none lg:group-hover/card:h-1 lg:group-hover/card:w-[6.5rem]':
-                    index === 0 || index === 3,
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:left-0 lg:top-[calc(50%-3rem)]':
-                    index === 1 || index === 5,
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:right-0 lg:top-[calc(50%-3rem)] lg:rounded-bl-full lg:rounded-br-none lg:rounded-tl-full lg:rounded-tr-none':
-                    index === 2 || index === 6,
-                  'h-[6rem] w-1 rounded-br-full rounded-tr-full group-hover/card:h-[6.5rem] lg:bottom-0 lg:left-[calc(50%-3rem)] lg:h-1 lg:w-[6rem] lg:rounded-bl-none lg:rounded-br-none lg:rounded-tl-full lg:rounded-tr-full lg:group-hover/card:h-1 lg:group-hover/card:w-[6.5rem]':
-                    index === 4 || index === features.length - 1,
-                },
-              )}
-            ></div>
-          </motion.div>
+          </div>
         ))}
-      </motion.div>
-    </motion.section>
+      </div>
+    </section>
   );
 };
 
