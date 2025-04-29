@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
+import { Menu, Phone } from 'lucide-react'; // Added Phone import
 
 // Create a custom event for opening the demo form
 
@@ -80,8 +80,10 @@ const Navbar = () => {
           <a href="#faq" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'faq')}>
             FAQs
           </a>
-          {/* Updated to use onClick instead of href */}
-          <Button onClick={handleDemoButtonClick}>Experience AI Calling</Button>
+          {/* Added Phone icon to the button */}
+          <Button onClick={handleDemoButtonClick} className="flex items-center gap-2">
+            <Phone size={18} className="text-white fill-white" /> Talk to Our Voice AI
+          </Button>
         </div>
 
         <div className="md:hidden">
@@ -139,13 +141,13 @@ const Navbar = () => {
                 >
                   FAQs
                 </a>
-                {/* Updated to use onClick with stopPropagation */}
+                {/* Added Phone icon to the mobile button too */}
                 <Button 
-                  className="w-full mt-2" 
+                  className="w-full mt-2 flex items-center justify-center gap-2" 
                   onClick={handleDemoButtonClick}
                   onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
                 >
-                  Experience AI Calling
+                  <Phone size={18} className="text-white fill-white" /> Talk to Our Voice AI
                 </Button>
               </div>
             </SheetContent>

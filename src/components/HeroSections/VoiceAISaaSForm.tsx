@@ -23,6 +23,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import axios from 'axios';
 import countries from '@/data/countries.json';
+import { Phone } from 'lucide-react'; // Added import for Phone icon
 
 // PhoneInput component for reusability
 interface PhoneInputProps {
@@ -272,9 +273,10 @@ export default function VoiceAISaaSForm() {
         <Button
           onClick={handleOpenDemoForm}
           variant="outline"
-          className="border-2 border-primary text-lg md:text-xl font-semibold whitespace-nowrap"
+          className="border-2 border-primary text-lg md:text-xl font-semibold whitespace-nowrap flex items-center gap-2"
         >
-          Experience AI calling
+          <Phone size={20} className="text-primary fill-primary" /> {/* Added phone icon with primary fill */}
+          Talk to Our Voice AI
         </Button>
         <Button
           onClick={handleOpenCustomForm}
@@ -395,7 +397,7 @@ export default function VoiceAISaaSForm() {
       >
         <DialogContent className="max-w-md w-full">
           <DialogHeader>
-            <DialogTitle>Experience AI Calling</DialogTitle>
+            <DialogTitle>Talk to Our Voice AI</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
