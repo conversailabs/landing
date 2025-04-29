@@ -13,10 +13,10 @@ const Navbar = () => {
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault(); // Prevent default anchor behavior
     e.stopPropagation(); // Stop event propagation to prevent reopening
-    
+
     // Close the sheet first
     setIsOpen(false);
-    
+
     // Delay the scroll slightly to allow the sheet to close
     setTimeout(() => {
       // Find the section element
@@ -25,11 +25,11 @@ const Navbar = () => {
         // Calculate position to scroll to (accounting for navbar height plus some padding)
         const navbarHeight = document.querySelector('nav')?.offsetHeight || 0;
         const scrollPosition = section.offsetTop - navbarHeight - 1; // Small padding
-        
+
         // Smooth scroll to the calculated position
         window.scrollTo({
           top: scrollPosition,
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
     }, 300); // Short delay to ensure the sheet closes first
@@ -39,10 +39,10 @@ const Navbar = () => {
   const handleDemoButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     e.stopPropagation(); // Prevent event bubbling
-    
+
     // Close the sheet first
     setIsOpen(false);
-    
+
     // Slight delay to ensure sheet closes before opening the form
     setTimeout(() => {
       const openDemoFormEvent = new CustomEvent('openAIDemoForm');
@@ -56,7 +56,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex items-center justify-between">
         <a href="/" className="flex items-center md:flex-1">
           <img
-            src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/sign/demo-audios/Group%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcyMzJmNjk4LTBiYTAtNGU4Yi1iZWMxLWM3NDgyYTM4Y2RjOSJ9.eyJ1cmwiOiJkZW1vLWF1ZGlvcy9Hcm91cCAxLnBuZyIsImlhdCI6MTc0NDYyOTQ0OCwiZXhwIjoxNzc2MTY1NDQ4fQ.ZSFXe6hPDW2MH74Ypv4bpnjvQ1DbJZPLq8NPM0reVxg"
+            src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/Group%201.png"
             alt="ConversAILabs Logo"
             className="h-8 mr-2"
             onError={(e) => {
@@ -68,13 +68,25 @@ const Navbar = () => {
         </a>
 
         <div className="hidden md:flex items-center space-x-6 flex-1 justify-end">
-          <a href="#features" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'features')}>
+          <a
+            href="#features"
+            className="hover:text-primary"
+            onClick={(e) => handleLinkClick(e, 'features')}
+          >
             Features
           </a>
-          <a href="#pricing" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'pricing')}>
+          <a
+            href="#pricing"
+            className="hover:text-primary"
+            onClick={(e) => handleLinkClick(e, 'pricing')}
+          >
             Pricing
           </a>
-          <a href="#about" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'about')}>
+          <a
+            href="#about"
+            className="hover:text-primary"
+            onClick={(e) => handleLinkClick(e, 'about')}
+          >
             About Us
           </a>
           <a href="#faq" className="hover:text-primary" onClick={(e) => handleLinkClick(e, 'faq')}>
@@ -98,7 +110,7 @@ const Navbar = () => {
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex items-center mb-3 pt-4 mt-2 px-1">
                 <img
-                  src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/sign/demo-audios/Group%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcyMzJmNjk4LTBiYTAtNGU4Yi1iZWMxLWM3NDgyYTM4Y2RjOSJ9.eyJ1cmwiOiJkZW1vLWF1ZGlvcy9Hcm91cCAxLnBuZyIsImlhdCI6MTc0NDYyOTQ0OCwiZXhwIjoxNzc2MTY1NDQ4fQ.ZSFXe6hPDW2MH74Ypv4bpnjvQ1DbJZPLq8NPM0reVxg"
+                  src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/Group%201.png"
                   alt="ConversAILabs Logo"
                   className="h-6 mr-2"
                   onError={(e) => {
@@ -109,41 +121,41 @@ const Navbar = () => {
                 <span className="text-lg font-bold">ConversAILabs</span>
               </div>
               <div className="grid gap-4 py-3">
-                <a 
-                  href="#features" 
-                  className="hover:text-primary active:text-primary" 
+                <a
+                  href="#features"
+                  className="hover:text-primary active:text-primary"
                   onClick={(e) => handleLinkClick(e, 'features')}
                   onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
                 >
                   Features
                 </a>
-                <a 
-                  href="#pricing" 
-                  className="hover:text-primary active:text-primary" 
+                <a
+                  href="#pricing"
+                  className="hover:text-primary active:text-primary"
                   onClick={(e) => handleLinkClick(e, 'pricing')}
                   onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
                 >
                   Pricing
                 </a>
-                <a 
-                  href="#about" 
-                  className="hover:text-primary active:text-primary" 
+                <a
+                  href="#about"
+                  className="hover:text-primary active:text-primary"
                   onClick={(e) => handleLinkClick(e, 'about')}
                   onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
                 >
                   About Us
                 </a>
-                <a 
-                  href="#faq" 
-                  className="hover:text-primary active:text-primary" 
+                <a
+                  href="#faq"
+                  className="hover:text-primary active:text-primary"
                   onClick={(e) => handleLinkClick(e, 'faq')}
                   onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
                 >
                   FAQs
                 </a>
                 {/* Added Phone icon to the mobile button too */}
-                <Button 
-                  className="w-full mt-2 flex items-center justify-center gap-2" 
+                <Button
+                  className="w-full mt-2 flex items-center justify-center gap-2"
                   onClick={handleDemoButtonClick}
                   onMouseDown={(e) => e.preventDefault()} // Prevent focus issues
                 >
