@@ -206,7 +206,7 @@ const HeroSection: React.FC = () => {
       <div className="container px-4 md:px-10 mx-auto text-center flex-grow flex flex-col justify-center items-center relative z-10 mt-0">
         {/* Updated heading style with increased spacing between main heading and use case title on lg screens */}
         <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 px-2 md:px-0">
-          <span className="block mb-1 md:mb-2 lg:mb-6">Intelligent Voice AI Agents &#8594; 24/7 AI Receptionist</span>
+          <span className="block mb-1 md:mb-2 lg:mb-6">24/7 AI Receptionist</span>
           <span key={currentIndex} className="text-primary text-transition block text-xl md:text-3xl lg:text-4xl mt-2 md:mt-3 lg:mt-6">
             {currentUseCase.title}
           </span>

@@ -31,9 +31,10 @@ interface PhoneInputProps {
   setSelectedCountry: (country: any) => void;
   fieldName: string;
   onChange: (field: string, value: string) => void;
+  error?: string;
 }
 
-const PhoneInput = ({ selectedCountry, setSelectedCountry, fieldName, onChange }: PhoneInputProps) => {
+const PhoneInput = ({ selectedCountry, setSelectedCountry, fieldName, onChange, error }: PhoneInputProps) => {
   return (
     <div>
       <Label>Phone Number *</Label>
@@ -78,7 +79,7 @@ const PhoneInput = ({ selectedCountry, setSelectedCountry, fieldName, onChange }
           </SelectContent>
         </Select>
         <Input
-          className="flex-1"
+          className={`flex-1 ${error ? 'border-red-500' : ''}`}
           type="tel"
           placeholder="Enter phone number"
           onChange={(e) => {
@@ -86,6 +87,7 @@ const PhoneInput = ({ selectedCountry, setSelectedCountry, fieldName, onChange }
           }}
         />
       </div>
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
     </div>
   );
 };
@@ -98,6 +100,9 @@ export default function VoiceAISaaSForm() {
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
+  
+  // Field-level validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { toast } = useToast();
 
@@ -118,6 +123,11 @@ export default function VoiceAISaaSForm() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
+    
+    // Clear error for this field when user makes changes
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
   };
 
   const validateStep1 = () => {
@@ -132,7 +142,57 @@ export default function VoiceAISaaSForm() {
     return true;
   };
 
+  const validateStep2 = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Validate name
+    if (!formData.name || formData.name.trim() === '') {
+      newErrors.name = 'Name is required';
+    }
+    
+    // Validate email
+    if (!formData.email || formData.email.trim() === '') {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    // Validate phone
+    if (!formData.phone || formData.phone.trim() === '') {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\+\d{1,4}\d{6,14}$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateDemoForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Validate name
+    if (!formData.demo_name || formData.demo_name.trim() === '') {
+      newErrors.demo_name = 'Name is required';
+    }
+    
+    // Validate phone
+    if (!formData.demo_phone || formData.demo_phone.trim() === '') {
+      newErrors.demo_phone = 'Phone number is required';
+    } else if (!/^\+\d{1,4}\d{6,14}$/.test(formData.demo_phone)) {
+      newErrors.demo_phone = 'Please enter a valid phone number';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
+    // Validate before submitting
+    if (!validateStep2()) {
+      return;
+    }
+    
     try {
       setIsLoading(true);
 
@@ -156,6 +216,7 @@ export default function VoiceAISaaSForm() {
 
       // optionally reset form here
       setFormData({});
+      setErrors({});
       setStep(1);
       setShowCustomForm(false);
     } catch (err: any) {
@@ -170,6 +231,11 @@ export default function VoiceAISaaSForm() {
   };
 
   const handleDemoCallSubmit = async () => {
+    // Validate before submitting
+    if (!validateDemoForm()) {
+      return;
+    }
+    
     let abortError = false;
     
     try {
@@ -223,6 +289,7 @@ export default function VoiceAISaaSForm() {
       
       // Reset form data
       setFormData({});
+      setErrors({});
     } catch (error: any) {
       // If it's a timeout error (from our Promise.race)
       if (abortError) {
@@ -235,7 +302,6 @@ export default function VoiceAISaaSForm() {
         // Regular error handling with more user-friendly messages
         let errorMessage = 'An unexpected error occurred';
         
-       
         if (error.response?.data?.error?.message) {
           errorMessage = error.response.data.error.message;
         } else if (error.message) {
@@ -295,6 +361,7 @@ export default function VoiceAISaaSForm() {
             setStep(1);
             setFormData({});
             setStep1Error('');
+            setErrors({});
             setSelectedCountry(countries.find((c) => c.code === 'US')); // Reset country code on close
           }
         }}
@@ -353,11 +420,20 @@ export default function VoiceAISaaSForm() {
             <div className="space-y-4">
               <div>
                 <Label>Full Name *</Label>
-                <Input onChange={(e) => handleInputChange('name', e.target.value)} />
+                <Input 
+                  className={errors.name ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)} 
+                />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
               <div>
                 <Label>Business Email *</Label>
-                <Input type="email" onChange={(e) => handleInputChange('email', e.target.value)} />
+                <Input 
+                  type="email"
+                  className={errors.email ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange('email', e.target.value)} 
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
               
               {/* Using the PhoneInput component */}
@@ -366,6 +442,7 @@ export default function VoiceAISaaSForm() {
                 setSelectedCountry={setSelectedCountry}
                 fieldName="phone"
                 onChange={handleInputChange}
+                error={errors.phone}
               />
 
               <DialogFooter>
@@ -391,6 +468,7 @@ export default function VoiceAISaaSForm() {
           setShowDemoForm(open);
           if (!open) {
             setFormData({});
+            setErrors({});
             setSelectedCountry(countries.find((c) => c.code === 'US')); // Reset country code on close
           }
         }}
@@ -406,8 +484,10 @@ export default function VoiceAISaaSForm() {
               </Label>
               <Input
                 id="demo_name"
+                className={errors.demo_name ? 'border-red-500' : ''}
                 onChange={(e) => handleInputChange('demo_name', e.target.value)}
               />
+              {errors.demo_name && <p className="text-red-500 text-xs mt-1">{errors.demo_name}</p>}
             </div>
             
             {/* Using the PhoneInput component */}
@@ -416,6 +496,7 @@ export default function VoiceAISaaSForm() {
               setSelectedCountry={setSelectedCountry}
               fieldName="demo_phone"
               onChange={handleInputChange}
+              error={errors.demo_phone}
             />
 
             <DialogFooter>
