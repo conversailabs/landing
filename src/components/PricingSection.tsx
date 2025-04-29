@@ -129,7 +129,7 @@ const PricingSection: React.FC = () => {
             </CardContent>
             <CardFooter className="pt-6">
               <a href="#waitlist" className="w-full">
-                <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
+                <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
               </a>
             </CardFooter>
           </Card>
@@ -176,7 +176,7 @@ const PricingSection: React.FC = () => {
             </CardContent>
             <CardFooter className="pt-6">
               <a href="#waitlist" className="w-full">
-                <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
+                <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
               </a>
             </CardFooter>
           </Card>
@@ -219,7 +219,7 @@ const PricingSection: React.FC = () => {
             </CardContent>
             <CardFooter className="pt-6">
               <a href="#waitlist" className="w-full">
-                <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
+                <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
               </a>
             </CardFooter>
           </Card>
