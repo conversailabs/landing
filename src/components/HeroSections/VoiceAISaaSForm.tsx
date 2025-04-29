@@ -256,19 +256,28 @@ export default function VoiceAISaaSForm() {
     }
   };
 
+  // Handle button clicks with direct state updates
+  const handleOpenCustomForm = () => {
+    setShowCustomForm(true);
+  };
+  
+  const handleOpenDemoForm = () => {
+    setShowDemoForm(true);
+  };
+
   return (
     // Fixed height container to maintain consistent layout regardless of content changes
     <div className="flex flex-col items-center justify-center h-24 md:h-28">
       <div className="flex flex-col md:flex-row gap-4">
         <Button
-          onClick={() => setShowDemoForm(true)}
+          onClick={handleOpenDemoForm}
           variant="outline"
           className="border-2 border-primary text-lg md:text-xl font-semibold whitespace-nowrap"
         >
           Experience AI calling
         </Button>
         <Button
-          onClick={() => setShowCustomForm(true)}
+          onClick={handleOpenCustomForm}
           className="text-lg md:text-xl font-semibold whitespace-nowrap"
         >
           Get your custom voice AI solutions
@@ -359,7 +368,9 @@ export default function VoiceAISaaSForm() {
 
               <DialogFooter>
                 <div className="flex flex-col gap-2">
-                  <Button onClick={() => handleSubmit()}>Submit</Button>
+                  <Button onClick={() => handleSubmit()} disabled={isLoading}>
+                    {isLoading ? 'Submitting...' : 'Submit'}
+                  </Button>
                   <p className="text-xs text-center text-muted-foreground">
                     We'll email you with details about how our voice agents can help your specific
                     business.
@@ -412,7 +423,7 @@ export default function VoiceAISaaSForm() {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  You'll receive a call within a minutes from +16812011361
+                  You'll receive a call within a minute from +16812011361
                 </p>
               </div>
             </DialogFooter>
