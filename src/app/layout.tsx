@@ -17,8 +17,59 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ConversAILabs Landing Page',
-  description: 'A modern landing page for a Voice AI service.',
+  title: 'ConversAI Labs - Automate Call Operations with Voice AI',
+  description:
+    'ConversAI Labs is a powerful Voice AI platform designed to automate outbound and inbound call operations, streamline customer engagement, and reduce call center costs.',
+  keywords: [
+    'Voice AI',
+    'ConversAI Labs',
+    'AI Call Automation',
+    'Automated Customer Support',
+    'AI Call Center',
+    'Outbound Calls AI',
+    'Inbound Calls AI',
+    'Conversational AI',
+  ],
+  authors: [{ name: 'ConversAI Labs', url: 'https://www.conversailabs.com' }],
+  creator: 'ConversAI Labs',
+  publisher: 'ConversAI Labs',
+  metadataBase: new URL('https://www.conversailabs.com'),
+  alternates: {
+    canonical: 'https://www.conversailabs.com',
+  },
+  openGraph: {
+    title: 'ConversAI Labs - Automate Call Operations with Voice AI',
+    description:
+      'Automate your call workflows with ConversAI Labs. Improve customer experience and reduce manual overhead using advanced Voice AI technology.',
+    url: 'https://www.conversailabs.com',
+    siteName: 'ConversAI Labs',
+    images: [
+      {
+        url: 'https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/Group%201.png',
+        width: 1200,
+        height: 630,
+        alt: 'ConversAI Labs - Voice AI for Call Automation',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  category: 'technology',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ConversAI Labs - Automate Call Operations with Voice AI',
+    description:
+      'ConversAI Labs automates your call operations using advanced Voice AI. Save time and reduce costs with AI-powered conversations.',
+    images: [
+      'https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/Group%201.png',
+    ],
+    site: '@ConversAILabs',
+    creator: '@ConversAILabs',
+  },
 };
 
 export default function RootLayout({
@@ -27,10 +78,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   // Always include analytics in production, or when explicitly enabled in development
-  const enableAnalytics = 
-    process.env.NODE_ENV === 'production' || 
+  const enableAnalytics =
+    process.env.NODE_ENV === 'production' ||
     process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' ||
-    (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_ENABLE_ANALYTICS_IN_DEV === 'true');
+    (process.env.NODE_ENV === 'development' &&
+      process.env.NEXT_PUBLIC_ENABLE_ANALYTICS_IN_DEV === 'true');
 
   return (
     <html lang="en">

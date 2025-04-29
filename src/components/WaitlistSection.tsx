@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
 import {
   Select,
   SelectContent,
@@ -15,9 +14,8 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
-import { Search, Check, ChevronDown } from 'lucide-react';
+import { Check } from 'lucide-react';
 import countries from '@/data/countries.json';
-import { PlanInfo } from './PricingSection';
 
 export default function WaitlistSection() {
   const [step, setStep] = useState(1);
@@ -25,28 +23,9 @@ export default function WaitlistSection() {
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
-  const [selectedPlan, setSelectedPlan] = useState<PlanInfo | null>(null);
 
   const { toast } = useToast();
 
-  // Get the selected plan from localStorage when component mounts
-  useEffect(() => {
-    const planData = localStorage.getItem('selectedPlan');
-    if (planData) {
-      try {
-        const plan = JSON.parse(planData);
-        setSelectedPlan(plan);
-        // Pre-populate the form with the selected plan
-        setFormData((prevData) => ({
-          ...prevData,
-          plan: plan.name,
-          billing: plan.isAnnual ? 'annual' : 'monthly',
-        }));
-      } catch (error) {
-        console.error('Error parsing plan data from localStorage', error);
-      }
-    }
-  }, []);
 
   // Transform countries data for consistency
   const transformedCountries = countries.map((country) => ({
@@ -115,8 +94,6 @@ export default function WaitlistSection() {
       // Reset form and localStorage
       setFormData({});
       setSelectedCountry(getCountryByDialCode('+1'));
-      localStorage.removeItem('selectedPlan');
-      setSelectedPlan(null);
       setStep(1);
     } catch (err: any) {
       toast({
@@ -143,27 +120,11 @@ export default function WaitlistSection() {
         <div className="bg-card border rounded-lg shadow-sm p-6 w-full">
           <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">
-              {selectedPlan
-                ? `Get Started with ${selectedPlan.name}`
-                : 'Get Custom Voice AI Solution'}
+            Get Custom Voice AI Solution
             </h2>
             <p className="text-sm text-muted-foreground">
               Automate calls and save 20+ hours weekly with personalized AI voice agents
             </p>
-
-            {/* Show selected plan info if available */}
-            {selectedPlan && (
-              <div className="mt-4 p-3 bg-primary/10 rounded-md">
-                <p className="font-medium">Selected Plan: {selectedPlan.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {selectedPlan.price > 0
-                    ? `$${selectedPlan.price}/month, ${
-                        selectedPlan.isAnnual ? 'Annual' : 'Monthly'
-                      } billing`
-                    : 'Custom pricing'}
-                </p>
-              </div>
-            )}
 
             <div className="relative w-full h-1 bg-gray-300 rounded-full mt-4">
               <div
@@ -188,7 +149,7 @@ export default function WaitlistSection() {
                     <SelectItem value="support">Customer Support</SelectItem>
                     <SelectItem value="sales">Sales Calls</SelectItem>
                     <SelectItem value="reminders">Appointment Reminders</SelectItem>
-                    <SelectItem value="all_to_them">All Of Them</SelectItem>
+                    <SelectItem value="all_to_them">Others</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -259,13 +220,34 @@ export default function WaitlistSection() {
                       if (country) setSelectedCountry(country);
                     }}
                   >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Code" />
+                    <SelectTrigger className="w-28 overflow-hidden">
+                      <SelectValue>
+                        <div className="flex items-center">
+                          <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                            <img 
+                              src={`https://flagcdn.com/w40/${selectedCountry?.code.toLowerCase()}.png`} 
+                              alt={selectedCountry?.name || "Flag"} 
+                              className="object-cover w-full h-full"
+                            />
+                          </div>
+                          <span className="truncate">{selectedCountry?.dial_code}</span>
+                        </div>
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="max-h-60">
                       {countries.map((country) => (
                         <SelectItem key={country.code} value={country.code}>
-                          {country.emoji} {country.dial_code}
+                          <div className="flex items-center">
+                            <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                              <img 
+                                src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} 
+                                alt={country.name} 
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                            <span>{country.dial_code}</span>
+                            <span className="ml-2 text-xs text-gray-500 truncate">({country.name})</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>

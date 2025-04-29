@@ -11,8 +11,7 @@ import {
   PlugZap,
 } from 'lucide-react'; // or your icon set
 import { useEffect, useRef, useState } from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import { PRODUCT_NAME } from '@/lib/config';
+import { motion } from 'framer-motion';
 
 const features = [
   {
@@ -56,6 +55,7 @@ const features = [
     icon: <PlugZap className="size-6 text-muted-foreground" />,
   },
 ];
+
 const containerVariants = {
   visible: {
     transition: {
@@ -93,20 +93,6 @@ const childrenVariants = {
 };
 
 const KeyFeaturesSection = () => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-
-    const rect = containerRef.current.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  };
-
   return (
     <motion.section 
       className="container mx-auto flex min-h-[350px] w-full max-w-7xl flex-col items-center justify-center gap-y-12 p-6 sm:py-14 lg:gap-y-16"
@@ -116,24 +102,6 @@ const KeyFeaturesSection = () => {
       id="features"
     >
       <div className="flex flex-col items-center">
-        {/* <motion.div
-          className="relative mx-auto inline-flex h-8 w-min select-none overflow-hidden rounded-full px-[1.5px] pb-[1px] pt-[2px] focus:outline-none"
-          variants={{
-            visible: {
-              opacity: 1,
-              y: 0,
-            },
-            hidden: {
-              opacity: 0,
-              y: 2,
-            },
-          }}
-        >
-          <span className="absolute inset-[-1000%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,hsl(var(--primary))_0%,hsl(var(--muted))_50%,hsl(var(--primary))_100%)]" />
-          <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-background px-4 py-1 text-sm font-medium text-foreground backdrop-blur-3xl">
-            Features
-          </span>
-        </motion.div> */}
         <motion.h2
           className="leading-[1.1]! mb-0 mt-6 text-center text-3xl font-semibold tracking-tight text-foreground md:text-5xl lg:text-center"
           variants={childrenVariants}
@@ -143,21 +111,11 @@ const KeyFeaturesSection = () => {
       </div>
       <motion.div
         className="mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-        onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        ref={containerRef}
-        transition={{ duration: 0.6, ease: 'easeInOut' }}
-        style={{
-          background: isHovering
-            ? `radial-gradient(200px circle at ${mousePosition.x}px ${mousePosition.y}px, hsl(var(--primary)) -200%, transparent 100%)`
-            : 'none',
-        }}
       >
         {features.map((feature, index) => (
           <motion.div
             className={cn(
-              'group/card relative flex h-full w-full max-w-7xl flex-col overflow-hidden border-border py-10',
+              'group/card relative flex h-full w-full max-w-7xl flex-col overflow-hidden border-border py-10 transition-all duration-300 hover:border-primary hover:border-2',
               {
                 'lg:border-t': index % 3 === 0 && index < 4,
                 'lg:border-b':
@@ -183,29 +141,7 @@ const KeyFeaturesSection = () => {
             }}
             transition={{ duration: 0.6, ease: 'easeInOut' }}
           >
-            {/* Animated border overlay */}
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover/card:opacity-100">
-                {/* Top border */}
-                <div className="absolute left-0 top-0 h-px w-full">
-                  <div className="absolute h-full w-full animate-border-flow bg-gradient-to-r from-transparent via-primary to-transparent" />
-                </div>
-                {/* Right border */}
-                <div className="absolute right-0 top-0 h-full w-px">
-                  <div className="absolute h-full w-full animate-border-flow-vertical bg-gradient-to-b from-transparent via-primary to-transparent" />
-                </div>
-                {/* Bottom border */}
-                <div className="absolute bottom-0 left-0 h-px w-full">
-                  <div className="absolute h-full w-full animate-border-flow-reverse bg-gradient-to-r from-transparent via-primary to-transparent" />
-                </div>
-                {/* Left border */}
-                <div className="absolute left-0 top-0 h-full w-px">
-                  <div className="absolute h-full w-full animate-border-flow-vertical-reverse bg-gradient-to-b from-transparent via-primary to-transparent" />
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-primary/35 to-transparent opacity-0 transition duration-200 group-hover/card:opacity-100 dark:from-primary/30"></div>
+            <div className="absolute inset-0 h-full w-full bg-gradient-to-t from-primary/10 to-transparent opacity-0 transition duration-200 group-hover/card:opacity-100 dark:from-primary/10"></div>
             <div
               className={cn(
                 'mb-4 mt-2 px-10 transition-all duration-200 group-hover/card:translate-x-2',

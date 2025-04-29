@@ -170,15 +170,50 @@ const HeroSection: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-[90vh] flex flex-col justify-center items-center">
-      <div className="container px-10 mx-auto text-center flex-grow flex flex-col justify-center items-center">
-        {/* Increased max-width for lg screens to ensure one-line heading */}
-        <h1 className="mx-auto w-full max-w-4xl lg:max-w-6xl text-center text-3xl font-extrabold md:text-4xl lg:text-5xl 2xl:text-6xl uppercase whitespace-normal lg:whitespace-nowrap">
-          Intelligent Voice AI Agents
+    <div className="min-h-[90vh] flex flex-col justify-center items-center relative">
+      {/* Added the wave container here, positioned absolutely at the bottom */}
+      <div className="wave-container overflow-hidden absolute bottom-0 left-0 w-full z-0">
+        <div className="w-[200%] moving-wave">
+          <svg
+            data-name="Layer 1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="w-full h-16 md:h-24"
+          >
+            <defs>
+              <linearGradient id="sw-gradient-0" x1="0" x2="0" y1="1" y2="0">
+                <stop stopColor="rgba(255, 255, 255, 1)" offset="0%"></stop>
+                <stop stopColor="rgba(255, 255, 255, 1)" offset="100%"></stop>
+              </linearGradient>
+            </defs>
+            <path
+              d="M0,0V46.29c47.79,22.2,103.64,32.17,158.48,29.3
+             C213.31,73.52,267.94,59.25,321.48,41.31
+             c53.54-17.91,107.17-32,160.79-32
+             C538.93,9.31,593.39,26.79,647.42,48.89
+             c54.04,22.09,108.12,46.93,162.2,58.95
+             C865.28,119.28,920.49,108.21,975.72,93.26
+             c55.23-14.95,110.35-31.55,165.46-33.6
+             C1190.88,58.18,1200,49,1200,46.29V0Z"
+              opacity="1"
+              className="shape-fill"
+            ></path>
+          </svg>
+        </div>
+      </div>
+      
+      <div className="container px-4 md:px-10 mx-auto text-center flex-grow flex flex-col justify-center items-center relative z-10 mt-0">
+        {/* Updated heading style with increased spacing between main heading and use case title on lg screens */}
+        <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 px-2 md:px-0">
+          <span className="block mb-1 md:mb-2 lg:mb-6">24/7 AI Receptionist</span>
+          <span key={currentIndex} className="text-primary text-transition block text-xl md:text-3xl lg:text-4xl mt-2 md:mt-3 lg:mt-6">
+            {currentUseCase.title}
+          </span>
         </h1>
         
         {/* Content container with fixed height to prevent layout shifts */}
-        <div className="w-full flex flex-col items-center" style={{ minHeight: '220px', position: 'relative' }}>
+        <div className="w-full flex flex-col items-center" style={{ minHeight: '160px', position: 'relative' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
@@ -188,10 +223,6 @@ const HeroSection: React.FC = () => {
               transition={{ duration: 0.6 }}
               className="w-full flex flex-col items-center absolute top-0 left-0 right-0"
             >
-              <h2 className="mx-auto mt-5 max-w-3xl lg:max-w-5xl text-center text-primary text-2xl font-extrabold md:text-3xl lg:text-4xl 2xl:text-5xl uppercase">
-                {currentUseCase.title}
-              </h2>
-
               <div className="mx-auto md:max-w-2xl lg:max-w-3xl px-2 md:px-0 mt-4">
                 <div className="mb-6 md:mb-5 text-muted-foreground">
                   <p className="my-3 md:mb-2 text-sm md:text-base lg:text-lg leading-relaxed max-w-prose">
@@ -203,43 +234,9 @@ const HeroSection: React.FC = () => {
           </AnimatePresence>
         </div>
         
-        {/* Button container with fixed position */}
-        <div className="mt-4 w-full">
+        {/* Button container with z-index to appear above the wave */}
+        <div className="mt-4 w-full relative z-10">
           <VoiceAISaaSForm />
-        </div>
-        
-        {/* Added margin-bottom to create space between buttons and wave */}
-        <div className="mb-3 md:mb-5"></div>
-        
-        <div className="wave-container overflow-hidden absolute bottom-0 left-0 w-full z-0">
-          <div className="w-[200%] moving-wave">
-            <svg
-              data-name="Layer 1"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 1200 120"
-              preserveAspectRatio="none"
-              className="w-full h-16 md:h-24"
-            >
-              <defs>
-                <linearGradient id="sw-gradient-0" x1="0" x2="0" y1="1" y2="0">
-                  <stop stopColor="rgba(255, 255, 255, 1)" offset="0%"></stop>
-                  <stop stopColor="rgba(255, 255, 255, 1)" offset="100%"></stop>
-                </linearGradient>
-              </defs>
-              <path
-                d="M0,0V46.29c47.79,22.2,103.64,32.17,158.48,29.3
-               C213.31,73.52,267.94,59.25,321.48,41.31
-               c53.54-17.91,107.17-32,160.79-32
-               C538.93,9.31,593.39,26.79,647.42,48.89
-               c54.04,22.09,108.12,46.93,162.2,58.95
-               C865.28,119.28,920.49,108.21,975.72,93.26
-               c55.23-14.95,110.35-31.55,165.46-33.6
-               C1190.88,58.18,1200,49,1200,46.29V0Z"
-                opacity="1"
-                className="shape-fill"
-              ></path>
-            </svg>
-          </div>
         </div>
       </div>
     </div>

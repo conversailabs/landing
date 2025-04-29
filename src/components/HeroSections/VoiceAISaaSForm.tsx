@@ -23,6 +23,74 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import axios from 'axios';
 import countries from '@/data/countries.json';
+import { Phone } from 'lucide-react'; // Added import for Phone icon
+
+// PhoneInput component for reusability
+interface PhoneInputProps {
+  selectedCountry: any;
+  setSelectedCountry: (country: any) => void;
+  fieldName: string;
+  onChange: (field: string, value: string) => void;
+  error?: string;
+}
+
+const PhoneInput = ({ selectedCountry, setSelectedCountry, fieldName, onChange, error }: PhoneInputProps) => {
+  return (
+    <div>
+      <Label>Phone Number *</Label>
+      <div className="flex gap-2 items-center">
+        <Select
+          value={selectedCountry?.code}
+          onValueChange={(code) => {
+            const country = countries.find((c) => c.code === code);
+            if (country) setSelectedCountry(country);
+          }}
+        >
+          <SelectTrigger className="w-28 overflow-hidden">
+            <SelectValue>
+              <div className="flex items-center">
+                <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                  <img 
+                    src={`https://flagcdn.com/w40/${selectedCountry?.code.toLowerCase()}.png`} 
+                    alt={selectedCountry?.name || "Flag"} 
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <span className="truncate">{selectedCountry?.dial_code}</span>
+              </div>
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent className="max-h-60">
+            {countries.map((country) => (
+              <SelectItem key={country.code} value={country.code}>
+                <div className="flex items-center">
+                  <div className="w-6 h-4 relative mr-2 overflow-hidden rounded-sm border border-gray-200">
+                    <img 
+                      src={`https://flagcdn.com/w40/${country.code.toLowerCase()}.png`} 
+                      alt={country.name} 
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                  <span>{country.dial_code}</span>
+                  <span className="ml-2 text-xs text-gray-500 truncate">({country.name})</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Input
+          className={`flex-1 ${error ? 'border-red-500' : ''}`}
+          type="tel"
+          placeholder="Enter phone number"
+          onChange={(e) => {
+            onChange(fieldName, `${selectedCountry?.dial_code}${e.target.value}`);
+          }}
+        />
+      </div>
+      {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+    </div>
+  );
+};
 
 export default function VoiceAISaaSForm() {
   const [showCustomForm, setShowCustomForm] = useState(false);
@@ -32,6 +100,9 @@ export default function VoiceAISaaSForm() {
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
+  
+  // Field-level validation errors
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { toast } = useToast();
 
@@ -52,6 +123,11 @@ export default function VoiceAISaaSForm() {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
+    
+    // Clear error for this field when user makes changes
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' });
+    }
   };
 
   const validateStep1 = () => {
@@ -66,7 +142,57 @@ export default function VoiceAISaaSForm() {
     return true;
   };
 
+  const validateStep2 = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Validate name
+    if (!formData.name || formData.name.trim() === '') {
+      newErrors.name = 'Name is required';
+    }
+    
+    // Validate email
+    if (!formData.email || formData.email.trim() === '') {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+    
+    // Validate phone
+    if (!formData.phone || formData.phone.trim() === '') {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\+\d{1,4}\d{6,14}$/.test(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateDemoForm = () => {
+    const newErrors: Record<string, string> = {};
+    
+    // Validate name
+    if (!formData.demo_name || formData.demo_name.trim() === '') {
+      newErrors.demo_name = 'Name is required';
+    }
+    
+    // Validate phone
+    if (!formData.demo_phone || formData.demo_phone.trim() === '') {
+      newErrors.demo_phone = 'Phone number is required';
+    } else if (!/^\+\d{1,4}\d{6,14}$/.test(formData.demo_phone)) {
+      newErrors.demo_phone = 'Please enter a valid phone number';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async () => {
+    // Validate before submitting
+    if (!validateStep2()) {
+      return;
+    }
+    
     try {
       setIsLoading(true);
 
@@ -90,6 +216,7 @@ export default function VoiceAISaaSForm() {
 
       // optionally reset form here
       setFormData({});
+      setErrors({});
       setStep(1);
       setShowCustomForm(false);
     } catch (err: any) {
@@ -104,6 +231,11 @@ export default function VoiceAISaaSForm() {
   };
 
   const handleDemoCallSubmit = async () => {
+    // Validate before submitting
+    if (!validateDemoForm()) {
+      return;
+    }
+    
     let abortError = false;
     
     try {
@@ -157,6 +289,7 @@ export default function VoiceAISaaSForm() {
       
       // Reset form data
       setFormData({});
+      setErrors({});
     } catch (error: any) {
       // If it's a timeout error (from our Promise.race)
       if (abortError) {
@@ -169,7 +302,6 @@ export default function VoiceAISaaSForm() {
         // Regular error handling with more user-friendly messages
         let errorMessage = 'An unexpected error occurred';
         
-       
         if (error.response?.data?.error?.message) {
           errorMessage = error.response.data.error.message;
         } else if (error.message) {
@@ -191,19 +323,29 @@ export default function VoiceAISaaSForm() {
     }
   };
 
+  // Handle button clicks with direct state updates
+  const handleOpenCustomForm = () => {
+    setShowCustomForm(true);
+  };
+  
+  const handleOpenDemoForm = () => {
+    setShowDemoForm(true);
+  };
+
   return (
     // Fixed height container to maintain consistent layout regardless of content changes
     <div className="flex flex-col items-center justify-center h-24 md:h-28">
       <div className="flex flex-col md:flex-row gap-4">
         <Button
-          onClick={() => setShowDemoForm(true)}
+          onClick={handleOpenDemoForm}
           variant="outline"
-          className="border-2 border-primary text-lg md:text-xl font-semibold whitespace-nowrap"
+          className="border-2 border-primary text-lg md:text-xl font-semibold whitespace-nowrap flex items-center gap-2"
         >
-          Experience AI calling
+          <Phone size={20} className="text-primary fill-primary" /> {/* Added phone icon with primary fill */}
+          Talk to Our Voice AI
         </Button>
         <Button
-          onClick={() => setShowCustomForm(true)}
+          onClick={handleOpenCustomForm}
           className="text-lg md:text-xl font-semibold whitespace-nowrap"
         >
           Get your custom voice AI solutions
@@ -219,6 +361,7 @@ export default function VoiceAISaaSForm() {
             setStep(1);
             setFormData({});
             setStep1Error('');
+            setErrors({});
             setSelectedCountry(countries.find((c) => c.code === 'US')); // Reset country code on close
           }
         }}
@@ -240,6 +383,7 @@ export default function VoiceAISaaSForm() {
                     <SelectItem value="support">Customer Support</SelectItem>
                     <SelectItem value="sales">Sales Calls</SelectItem>
                     <SelectItem value="reminders">Appointment Reminders</SelectItem>
+                    <SelectItem value="all_to_them">Others</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -276,46 +420,36 @@ export default function VoiceAISaaSForm() {
             <div className="space-y-4">
               <div>
                 <Label>Full Name *</Label>
-                <Input onChange={(e) => handleInputChange('name', e.target.value)} />
+                <Input 
+                  className={errors.name ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange('name', e.target.value)} 
+                />
+                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
               </div>
               <div>
                 <Label>Business Email *</Label>
-                <Input type="email" onChange={(e) => handleInputChange('email', e.target.value)} />
+                <Input 
+                  type="email"
+                  className={errors.email ? 'border-red-500' : ''}
+                  onChange={(e) => handleInputChange('email', e.target.value)} 
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
-              <div>
-                <Label>Phone Number *</Label>
-                <div className="flex gap-2 items-center">
-                  <Select
-                    value={selectedCountry?.code}
-                    onValueChange={(code) => {
-                      const country = countries.find((c) => c.code === code);
-                      if (country) setSelectedCountry(country);
-                    }}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue placeholder="Code" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country.code} value={country.code}>
-                          {country.emoji} {country.dial_code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    className="flex-1"
-                    type="tel"
-                    placeholder="Enter phone number"
-                    onChange={(e) => {
-                      handleInputChange('phone', `${selectedCountry?.dial_code}${e.target.value}`);
-                    }}
-                  />
-                </div>
-              </div>
+              
+              {/* Using the PhoneInput component */}
+              <PhoneInput 
+                selectedCountry={selectedCountry}
+                setSelectedCountry={setSelectedCountry}
+                fieldName="phone"
+                onChange={handleInputChange}
+                error={errors.phone}
+              />
+
               <DialogFooter>
                 <div className="flex flex-col gap-2">
-                  <Button onClick={() => handleSubmit()}>Submit</Button>
+                  <Button onClick={() => handleSubmit()} disabled={isLoading}>
+                    {isLoading ? 'Submitting...' : 'Submit'}
+                  </Button>
                   <p className="text-xs text-center text-muted-foreground">
                     We'll email you with details about how our voice agents can help your specific
                     business.
@@ -334,13 +468,14 @@ export default function VoiceAISaaSForm() {
           setShowDemoForm(open);
           if (!open) {
             setFormData({});
+            setErrors({});
             setSelectedCountry(countries.find((c) => c.code === 'US')); // Reset country code on close
           }
         }}
       >
         <DialogContent className="max-w-md w-full">
           <DialogHeader>
-            <DialogTitle>Experience AI Calling</DialogTitle>
+            <DialogTitle>Talk to Our Voice AI</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -349,43 +484,20 @@ export default function VoiceAISaaSForm() {
               </Label>
               <Input
                 id="demo_name"
+                className={errors.demo_name ? 'border-red-500' : ''}
                 onChange={(e) => handleInputChange('demo_name', e.target.value)}
               />
+              {errors.demo_name && <p className="text-red-500 text-xs mt-1">{errors.demo_name}</p>}
             </div>
-            <div>
-              <Label>Phone Number *</Label>
-              <div className="flex gap-2 items-center">
-                <Select
-                  value={selectedCountry?.code}
-                  onValueChange={(code) => {
-                    const country = countries.find((c) => c.code === code);
-                    if (country) setSelectedCountry(country);
-                  }}
-                >
-                  <SelectTrigger className="w-32">
-                    <SelectValue placeholder="Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        {country.emoji} {country.dial_code}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  className="flex-1"
-                  type="tel"
-                  placeholder="Enter phone number"
-                  onChange={(e) => {
-                    handleInputChange(
-                      'demo_phone',
-                      `${selectedCountry?.dial_code}${e.target.value}`,
-                    );
-                  }}
-                />
-              </div>
-            </div>
+            
+            {/* Using the PhoneInput component */}
+            <PhoneInput 
+              selectedCountry={selectedCountry}
+              setSelectedCountry={setSelectedCountry}
+              fieldName="demo_phone"
+              onChange={handleInputChange}
+              error={errors.demo_phone}
+            />
 
             <DialogFooter>
               <div className="flex flex-col gap-2 w-full">
@@ -394,7 +506,7 @@ export default function VoiceAISaaSForm() {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  You'll receive a call within a minutes from +16812011361
+                  You'll receive a call within a minute from +16812011361
                 </p>
               </div>
             </DialogFooter>
