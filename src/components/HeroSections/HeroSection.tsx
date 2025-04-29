@@ -203,14 +203,17 @@ const HeroSection: React.FC = () => {
         </div>
       </div>
       
-      <div className="container px-10 mx-auto text-center flex-grow flex flex-col justify-center items-center relative z-10">
-        {/* Increased max-width for lg screens to ensure one-line heading */}
-        <h1 className="mx-auto w-full max-w-4xl lg:max-w-6xl text-center text-3xl font-extrabold md:text-4xl lg:text-5xl 2xl:text-6xl uppercase whitespace-normal lg:whitespace-nowrap">
-          Intelligent Voice AI Agents
+      <div className="container px-4 md:px-10 mx-auto text-center flex-grow flex flex-col justify-center items-center relative z-10 mt-0">
+        {/* Updated heading style with increased spacing between main heading and use case title on lg screens */}
+        <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 px-2 md:px-0">
+          <span className="block mb-1 md:mb-2 lg:mb-6">24/7 AI Receptionist</span>
+          <span key={currentIndex} className="text-primary text-transition block text-xl md:text-3xl lg:text-4xl mt-2 md:mt-3 lg:mt-6">
+            {currentUseCase.title}
+          </span>
         </h1>
         
         {/* Content container with fixed height to prevent layout shifts */}
-        <div className="w-full flex flex-col items-center" style={{ minHeight: '220px', position: 'relative' }}>
+        <div className="w-full flex flex-col items-center" style={{ minHeight: '160px', position: 'relative' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={currentIndex}
@@ -220,10 +223,6 @@ const HeroSection: React.FC = () => {
               transition={{ duration: 0.6 }}
               className="w-full flex flex-col items-center absolute top-0 left-0 right-0"
             >
-              <h2 className="mx-auto mt-5 max-w-3xl lg:max-w-5xl text-center text-primary text-2xl font-extrabold md:text-3xl lg:text-4xl 2xl:text-5xl uppercase">
-                {currentUseCase.title}
-              </h2>
-
               <div className="mx-auto md:max-w-2xl lg:max-w-3xl px-2 md:px-0 mt-4">
                 <div className="mb-6 md:mb-5 text-muted-foreground">
                   <p className="my-3 md:mb-2 text-sm md:text-base lg:text-lg leading-relaxed max-w-prose">
