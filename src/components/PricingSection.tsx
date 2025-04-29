@@ -1,5 +1,3 @@
-// PricingSection.jsx
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -8,7 +6,6 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 interface PricingFeatureProps {
   text: string;
@@ -21,18 +18,10 @@ const PricingFeature: React.FC<PricingFeatureProps> = ({ text }) => (
   </li>
 );
 
-export interface PlanInfo {
-  id: string;
-  name: string;
-  price: number;
-  isAnnual: boolean;
-}
-
 const PricingSection: React.FC = () => {
   const [annualBilling, setAnnualBilling] = useState(true);
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const sectionRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
 
   // Calculate time remaining until May 1st
   const calculateTimeRemaining = () => {
@@ -74,57 +63,6 @@ const PricingSection: React.FC = () => {
   // Calculate prices based on billing cycle
   const starterPrice = annualBilling ? 99 : Math.round(99 * 1.2);
   const professionalPrice = annualBilling ? 199 : Math.round(199 * 1.2);
-
-  // Handle plan selection and navigation to waitlist
-  const handleGetStarted = (planIndex: number) => {
-    let planInfo: PlanInfo;
-
-    switch (planIndex) {
-      case 0:
-        planInfo = {
-          id: 'starter',
-          name: 'Starter Plan',
-          price: starterPrice,
-          isAnnual: annualBilling
-        };
-        break;
-      case 1:
-        planInfo = {
-          id: 'professional',
-          name: 'Professional Plan',
-          price: professionalPrice,
-          isAnnual: annualBilling
-        };
-        break;
-      case 2:
-        planInfo = {
-          id: 'enterprise',
-          name: 'Enterprise Plan',
-          price: 0, // Custom pricing
-          isAnnual: annualBilling
-        };
-        break;
-      default:
-        planInfo = {
-          id: 'starter',
-          name: 'Starter Plan',
-          price: starterPrice,
-          isAnnual: annualBilling
-        };
-    }
-
-    // Store selected plan in localStorage
-    localStorage.setItem('selectedPlan', JSON.stringify(planInfo));
-    
-    // Create and dispatch a custom event to notify the WaitlistSection
-    const event = new CustomEvent('planSelected', { 
-      detail: planInfo 
-    });
-    document.dispatchEvent(event);
-    
-    // Navigate to waitlist section
-    window.location.href = '#waitlist';
-  };
 
   return (
     <section id="pricing" className="py-12 bg-accent w-full" ref={sectionRef}>
@@ -196,13 +134,9 @@ const PricingSection: React.FC = () => {
               </ul>
             </CardContent>
             <CardFooter className="pt-6">
-              <Button 
-                size="lg" 
-                className="w-full"
-                onClick={() => handleGetStarted(0)}
-              >
-                Get Started
-              </Button>
+              <a href="#waitlist" className="w-full">
+                <Button size="lg" className="w-full">Get Started</Button>
+              </a>
             </CardFooter>
           </Card>
 
@@ -244,13 +178,9 @@ const PricingSection: React.FC = () => {
               </ul>
             </CardContent>
             <CardFooter className="pt-6">
-              <Button 
-                size="lg" 
-                className="w-full"
-                onClick={() => handleGetStarted(1)}
-              >
-                Get Started
-              </Button>
+              <a href="#waitlist" className="w-full">
+                <Button size="lg" className="w-full">Get Started</Button>
+              </a>
             </CardFooter>
           </Card>
 
@@ -288,13 +218,9 @@ const PricingSection: React.FC = () => {
               </ul>
             </CardContent>
             <CardFooter className="pt-6">
-              <Button 
-                size="lg" 
-                className="w-full"
-                onClick={() => handleGetStarted(2)}
-              >
-                Get Started
-              </Button>
+              <a href="#waitlist" className="w-full">
+                <Button size="lg" className="w-full">Get Started</Button>
+              </a>
             </CardFooter>
           </Card>
         </div>

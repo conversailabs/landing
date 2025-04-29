@@ -64,11 +64,6 @@ const Footer = () => {
     // Reset the contact display when navigating
     setShowContact(false);
     
-    // Remove any focus or active states from the clicked link
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-    
     // Find the section element
     const section = document.getElementById(sectionId);
     if (section) {

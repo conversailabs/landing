@@ -16,7 +16,6 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabaseClient';
 import { Check } from 'lucide-react';
 import countries from '@/data/countries.json';
-import { PlanInfo } from './PricingSection';
 
 export default function WaitlistSection() {
   const [step, setStep] = useState(1);
@@ -24,47 +23,9 @@ export default function WaitlistSection() {
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
-  const [selectedPlan, setSelectedPlan] = useState<PlanInfo | null>(null);
 
   const { toast } = useToast();
 
-  // Function to set selected plan data
-  const setSelectedPlanData = (plan: PlanInfo) => {
-    setSelectedPlan(plan);
-    // Pre-populate the form with the selected plan
-    setFormData((prevData) => ({
-      ...prevData,
-      plan: plan.name,
-      billing: plan.isAnnual ? 'annual' : 'monthly',
-    }));
-  };
-
-  // Get the selected plan from localStorage when component mounts
-  useEffect(() => {
-    // First check localStorage for any saved plan
-    const planData = localStorage.getItem('selectedPlan');
-    if (planData) {
-      try {
-        const plan = JSON.parse(planData);
-        setSelectedPlanData(plan);
-      } catch (error) {
-        console.error('Error parsing plan data from localStorage', error);
-      }
-    }
-
-    // Set up event listener for direct communication from PricingSection
-    const handlePlanSelected = (event: CustomEvent<PlanInfo>) => {
-      setSelectedPlanData(event.detail);
-    };
-
-    // Add event listener for custom event
-    document.addEventListener('planSelected', handlePlanSelected as EventListener);
-
-    // Cleanup event listener on component unmount
-    return () => {
-      document.removeEventListener('planSelected', handlePlanSelected as EventListener);
-    };
-  }, []);
 
   // Transform countries data for consistency
   const transformedCountries = countries.map((country) => ({
@@ -133,8 +94,6 @@ export default function WaitlistSection() {
       // Reset form and localStorage
       setFormData({});
       setSelectedCountry(getCountryByDialCode('+1'));
-      localStorage.removeItem('selectedPlan');
-      setSelectedPlan(null);
       setStep(1);
     } catch (err: any) {
       toast({
@@ -161,9 +120,7 @@ export default function WaitlistSection() {
         <div className="bg-card border rounded-lg shadow-sm p-6 w-full">
           <div className="mb-6">
             <h2 className="text-2xl font-semibold mb-2">
-              {selectedPlan
-                ? `Get Started with ${selectedPlan.name}`
-                : 'Get Custom Voice AI Solution'}
+            Get Custom Voice AI Solution
             </h2>
             <p className="text-sm text-muted-foreground">
               Automate calls and save 20+ hours weekly with personalized AI voice agents
