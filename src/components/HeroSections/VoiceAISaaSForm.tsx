@@ -25,6 +25,10 @@ import axios from 'axios';
 import countries from '@/data/countries.json';
 import { Phone } from 'lucide-react'; // Added import for Phone icon
 
+
+const from_number = process.env.NEXT_PUBLIC_FROM_NUMBER!;
+const override_agent_id = process.env.NEXT_PUBLIC_OVERRIDE_AGENT_ID!;
+
 // PhoneInput component for reusability
 interface PhoneInputProps {
   selectedCountry: any;
@@ -219,6 +223,34 @@ export default function VoiceAISaaSForm() {
       setErrors({});
       setStep(1);
       setShowCustomForm(false);
+
+      const response = await axios.post('/api/make-call', {
+        from_number:from_number,
+        to_number: formData.phone,
+        override_agent_id:override_agent_id,
+        metadata: {
+          task: formData.task,
+          volume: formData.volume,
+          about: formData.about,
+          name: formData.name || 'Guest',
+          email: formData.email,
+          phone: formData.phone,
+        },
+        retell_llm_dynamic_variables: {
+          name: formData.name || 'Guest',
+          number: formData.phone,
+          current_time: new Date().toISOString(),
+        }
+      }, {
+        timeout: 15000 // 15 seconds timeout
+      });
+
+      // Show success toast on successful response
+      toast({
+        title: 'Incoming AI call',
+        description: 'Watch your phone — your personalized verification is about to begin!',
+        duration: 5000, 
+      });
     } catch (err: any) {
       toast({
         title: 'Submission Failed',
@@ -239,6 +271,14 @@ export default function VoiceAISaaSForm() {
     let abortError = false;
     
     try {
+      if (!formData.demo_phone || formData.demo_phone === selectedCountry?.dial_code) {
+        toast({
+          title: 'Phone required',
+          description: 'Please enter a valid phone number to receive the demo call.',
+          variant: 'destructive',
+        });
+        return;
+      }
       setIsLoading(true);
       
       // Show immediate feedback that call is being initiated
@@ -247,35 +287,22 @@ export default function VoiceAISaaSForm() {
         description: 'Setting up your personalized demo call...',
       });
       
-      // Use a simple timeout instead of AbortController
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
-          abortError = true;
-          reject(new Error('Timeout: The request took too long to complete'));
-          
-          // When aborting, also set loading state to false
-          setIsLoading(false);
-        }, 15000);
+      const response = await axios.post('/api/make-call', {
+        from_number:from_number,
+        to_number: formData.demo_phone,
+        override_agent_id:override_agent_id,
+        metadata: {
+          name: formData.demo_name || 'Guest',
+          number: formData.demo_phone,
+        },
+        retell_llm_dynamic_variables: {
+          name: formData.demo_name || 'Guest',
+          number: formData.demo_phone,
+          current_time: new Date().toISOString(),
+        }
+      }, {
+        timeout: 15000 // 15 seconds timeout
       });
-      
-      // Race between the actual request and the timeout
-      const response = await Promise.race([
-        axios.post('/api/make-call', {
-          from_number: '+16812011361',
-          to_number: formData.demo_phone,
-          override_agent_id: 'agent_70dbec3ad930da72a639c27fad',
-          metadata: {
-            name: formData.demo_name || 'Guest',
-            number: formData.demo_phone,
-          },
-          retell_llm_dynamic_variables: {
-            name: formData.demo_name || 'Guest',
-            number: formData.demo_phone,
-            current_time: new Date().toISOString(),
-          }
-        }),
-        timeoutPromise
-      ]);
   
       // Only show success toast if we actually got a response (not timed out)
       toast({
@@ -290,36 +317,25 @@ export default function VoiceAISaaSForm() {
       // Reset form data
       setFormData({});
       setErrors({});
-    } catch (error: any) {
-      // If it's a timeout error (from our Promise.race)
-      if (abortError) {
-        toast({
-          title: 'Request timeout',
-          description: 'The call request is taking too long. Please try again later.',
-          variant: 'destructive',
-        });
-      } else {
-        // Regular error handling with more user-friendly messages
-        let errorMessage = 'An unexpected error occurred';
-        
-        if (error.response?.data?.error?.message) {
-          errorMessage = error.response.data.error.message;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-        
-        toast({
-          title: 'Failed to send call',
-          description: errorMessage,
-          variant: 'destructive',
-        });
+    } catch (error:any) {
+      // Handle different error types
+      let errorMessage = 'An unexpected error occurred';
+
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'The call request is taking too long. Please try again later.';
+      } else if (error.response?.data?.error?.message) {
+        errorMessage = error.response.data.error.message;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
-    } finally {
-      // Only set loading to false if it wasn't a timeout
-      // (timeout already sets loading to false)
-      if (!abortError) {
-        setIsLoading(false);
-      }
+
+      toast({
+        title: 'Failed to send call',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+    }  finally {
+      setIsLoading(false);
     }
   };
 
