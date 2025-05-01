@@ -51,8 +51,9 @@ const HeroSection: React.FC = () => {
     const intervalId = setInterval(() => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % useCasesData.length);
     }, 5000);
+    
     return () => clearInterval(intervalId);
-  }, [useCasesData.length]);
+  }, []); // Removed useCasesData.length from dependencies as it's constant
 
   useEffect(() => {
     const style = document.createElement('style');
@@ -167,11 +168,16 @@ const HeroSection: React.FC = () => {
       }
     `;
     document.head.appendChild(style);
+    
+    // Clean up the style element when the component unmounts
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   return (
     <div className="min-h-[90vh] flex flex-col justify-center items-center relative">
-      {/* Added the wave container here, positioned absolutely at the bottom */}
+      {/* Wave container positioned absolutely at the bottom */}
       <div className="wave-container overflow-hidden absolute bottom-0 left-0 w-full z-0">
         <div className="w-[200%] moving-wave">
           <svg
@@ -204,7 +210,7 @@ const HeroSection: React.FC = () => {
       </div>
       
       <div className="container px-4 md:px-10 mx-auto text-center flex-grow flex flex-col justify-center items-center relative z-10 mt-0">
-        {/* Updated heading style with increased spacing between main heading and use case title on lg screens */}
+        {/* Heading with increased spacing between main heading and use case title on lg screens */}
         <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 px-2 md:px-0">
           <span className="block mb-1 md:mb-2 lg:mb-6">24/7 AI Receptionist</span>
           <span key={currentIndex} className="text-primary text-transition block text-xl md:text-3xl lg:text-4xl mt-2 md:mt-3 lg:mt-6">

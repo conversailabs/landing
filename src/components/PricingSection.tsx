@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
 
@@ -74,7 +74,7 @@ const PricingSection: React.FC = () => {
             </span>
           </div>
           
-          {/* Updated Free Trial Banner */}
+          {/* Free Trial Banner */}
           <div className="bg-primary/10 border border-primary/20 p-4 mb-6 w-full mx-auto rounded-lg relative lg:max-w-none">
             <div className="absolute -top-2 -right-2 bg-yellow-400 text-xs font-bold px-2 py-0.5 rounded-md">
               NEW
@@ -88,141 +88,148 @@ const PricingSection: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full mx-auto">
+        {/* Pricing cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6 w-full mx-auto">
           {/* Starter Plan */}
-          <Card 
-            className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
-              selectedPlan === 0 
-                ? 'ring-2 ring-primary' 
-                : 'hover:border-primary/50 transition-colors'
-            }`}
-            onClick={() => setSelectedPlan(0)}
-          >
-            <div className="absolute -top-3 left-0 right-0 flex justify-center">
-              <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                14-DAYS FREE TRIAL
+          <div className="relative mb-6 md:mb-0">
+            <Card 
+              className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
+                selectedPlan === 0 
+                  ? 'ring-2 ring-primary scale-105 z-10' 
+                  : 'hover:border-primary/50 transition-colors'
+              }`}
+              onClick={() => setSelectedPlan(0)}
+            >
+              <div className="absolute -top-3 left-0 right-0 flex justify-center">
+                <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
+                  14-DAY FREE TRIAL
+                </div>
               </div>
-            </div>
-            <CardHeader>
-              <CardTitle>Starter Plan</CardTitle>
-              <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">
-                  ${starterPrice}
-                </span>
-                <span className="ml-1 text-muted-foreground">/month</span>
-              </div>
-              {annualBilling && (
-                <p className="text-green-600 text-sm mt-2">20% savings with annual billing</p>
-              )}
-              <p className="text-muted-foreground mt-2">500 minutes included</p>
-              <p className="text-sm text-muted-foreground mt-1">One-time setup fee of $99</p>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <ul className="space-y-3">
-                <PricingFeature text="Natural Voice Conversations" />
-                <PricingFeature text="24/7 Availability" />
-                <PricingFeature text="Basic Customizable Scripts" />
-                <PricingFeature text="Simple Analytics & Call Summaries" />
-                <PricingFeature text="Email Support" />
-                <PricingFeature text="Additional minutes at $0.12/min" />
-              </ul>
-            </CardContent>
-            <CardFooter className="pt-6">
-              <a href="#waitlist" className="w-full">
-                <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
-              </a>
-            </CardFooter>
-          </Card>
+              <CardHeader>
+                <CardTitle>Starter Plan</CardTitle>
+                <div className="mt-2 flex items-baseline">
+                  <span className="text-3xl font-bold">
+                    ${starterPrice}
+                  </span>
+                  <span className="ml-1 text-muted-foreground">/month</span>
+                </div>
+                {annualBilling && (
+                  <p className="text-green-600 text-sm mt-2">20% savings with annual billing</p>
+                )}
+                <p className="text-muted-foreground mt-2">500 minutes included</p>
+                <p className="text-sm text-muted-foreground mt-1">One-time setup fee of $99</p>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <ul className="space-y-3">
+                  <PricingFeature text="Natural Voice Conversations" />
+                  <PricingFeature text="24/7 Availability" />
+                  <PricingFeature text="Basic Customizable Scripts" />
+                  <PricingFeature text="Simple Analytics & Call Summaries" />
+                  <PricingFeature text="Email Support" />
+                  <PricingFeature text="Additional minutes at $0.12/min" />
+                </ul>
+              </CardContent>
+              <CardFooter className="pt-6">
+                <a href="#waitlist" className="w-full">
+                  <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
+                </a>
+              </CardFooter>
+            </Card>
+          </div>
 
           {/* Professional Plan */}
-          <Card 
-            className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
-              selectedPlan === 1 
-                ? 'ring-2 ring-primary' 
-                : 'hover:border-primary/50 transition-colors'
-            }`}
-            onClick={() => setSelectedPlan(1)}
-          >
-            <div className="absolute -top-3 left-0 right-0 flex justify-center">
-              <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                14-DAYS FREE TRIAL
+          <div className="relative mb-6 md:mb-0">
+            <Card 
+              className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
+                selectedPlan === 1 
+                  ? 'ring-2 ring-primary scale-105 z-10' 
+                  : 'hover:border-primary/50 transition-colors'
+              }`}
+              onClick={() => setSelectedPlan(1)}
+            >
+              <div className="absolute -top-3 left-0 right-0 flex justify-center">
+                <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
+                  14-DAY FREE TRIAL
+                </div>
               </div>
-            </div>
-            <CardHeader>
-              <CardTitle>Professional Plan</CardTitle>
-              <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">
-                  ${professionalPrice}
-                </span>
-                <span className="ml-1 text-muted-foreground">/month</span>
-              </div>
-              {annualBilling && (
-                <p className="text-green-600 text-sm mt-2">20% savings with annual billing</p>
-              )}
-              <p className="text-muted-foreground mt-2">1,000 minutes included</p>
-              <p className="text-sm text-muted-foreground mt-1">One-time setup fee of $99</p>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <ul className="space-y-3">
-                <PricingFeature text="Everything in Starter, plus:" />
-                <PricingFeature text="Advanced Customizable Scripts" />
-                <PricingFeature text="Comprehensive Analytics & Summaries" />
-                <PricingFeature text="CRM Integration" />
-                <PricingFeature text="Calendar Integration" />
-                <PricingFeature text="AI-Powered Adaptive Dialogues" />
-                <PricingFeature text="Priority Support" />
-                <PricingFeature text="Additional minutes at $0.10/min" />
-              </ul>
-            </CardContent>
-            <CardFooter className="pt-6">
-              <a href="#waitlist" className="w-full">
-                <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
-              </a>
-            </CardFooter>
-          </Card>
+              <CardHeader>
+                <CardTitle>Professional Plan</CardTitle>
+                <div className="mt-2 flex items-baseline">
+                  <span className="text-3xl font-bold">
+                    ${professionalPrice}
+                  </span>
+                  <span className="ml-1 text-muted-foreground">/month</span>
+                </div>
+                {annualBilling && (
+                  <p className="text-green-600 text-sm mt-2">20% savings with annual billing</p>
+                )}
+                <p className="text-muted-foreground mt-2">1,000 minutes included</p>
+                <p className="text-sm text-muted-foreground mt-1">One-time setup fee of $99</p>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <ul className="space-y-3">
+                  <PricingFeature text="Everything in Starter, plus:" />
+                  <PricingFeature text="Advanced Customizable Scripts" />
+                  <PricingFeature text="Comprehensive Analytics & Summaries" />
+                  <PricingFeature text="CRM Integration" />
+                  <PricingFeature text="Calendar Integration" />
+                  <PricingFeature text="AI-Powered Adaptive Dialogues" />
+                  <PricingFeature text="Priority Support" />
+                  <PricingFeature text="Additional minutes at $0.10/min" />
+                </ul>
+              </CardContent>
+              <CardFooter className="pt-6">
+                <a href="#waitlist" className="w-full">
+                  <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
+                </a>
+              </CardFooter>
+            </Card>
+          </div>
 
           {/* Enterprise Plan */}
-          <Card 
-            className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
-              selectedPlan === 2 
-                ? 'ring-2 ring-primary' 
-                : 'hover:border-primary/50 transition-colors'
-            }`}
-            onClick={() => setSelectedPlan(2)}
-          >
-            <div className="absolute -top-3 left-0 right-0 flex justify-center">
-              <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
-                14-DAYS FREE TRIAL
+          <div className="relative">
+            <Card 
+              className={`pricing-card relative h-full flex flex-col transform transition-all duration-300 hover:scale-105 ${
+                selectedPlan === 2 
+                  ? 'ring-2 ring-primary scale-105 z-10' 
+                  : 'hover:border-primary/50 transition-colors'
+              }`}
+              onClick={() => setSelectedPlan(2)}
+            >
+              <div className="absolute -top-3 left-0 right-0 flex justify-center">
+                <div className="bg-primary text-white text-xs font-bold px-4 py-1 rounded-full">
+                  14-DAY FREE TRIAL
+                </div>
               </div>
-            </div>
-            <CardHeader>
-              <CardTitle>Enterprise Plan</CardTitle>
-              <div className="mt-2 flex items-baseline">
-                <span className="text-3xl font-bold">Custom</span>
-              </div>
-              <p className="text-muted-foreground mt-2">Custom minutes allocation</p>
-              <p className="text-sm text-muted-foreground mt-1">Minimum service level guarantee</p>
-              <p className="text-sm text-muted-foreground mt-1">One-time setup fee of $199</p>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <ul className="space-y-3">
-                <PricingFeature text="Everything in Professional, plus:" />
-                <PricingFeature text="Fully Customizable Scripts" />
-                <PricingFeature text="Enterprise Analytics & Reporting" />
-                <PricingFeature text="Advanced Integrations" />
-                <PricingFeature text="Premium AI Adaptive Dialogues" />
-                <PricingFeature text="Secure & Compliant (GDPR & HIPAA)" />
-                <PricingFeature text="Dedicated Account Manager" />
-                <PricingFeature text="24/7 Premium Support" />
-                <PricingFeature text="Custom Integrations" />
-              </ul>
-            </CardContent>
-            <CardFooter className="pt-6">
-              <a href="#waitlist" className="w-full">
-                <Button size="lg" className="w-full">Start 14-Days Free Trial</Button>
-              </a>
-            </CardFooter>
-          </Card>
+              <CardHeader>
+                <CardTitle>Enterprise Plan</CardTitle>
+                <div className="mt-2 flex items-baseline">
+                  <span className="text-3xl font-bold">Custom</span>
+                </div>
+                <p className="text-muted-foreground mt-2">Custom minutes allocation</p>
+                <p className="text-sm text-muted-foreground mt-1">Minimum service level guarantee</p>
+                <p className="text-sm text-muted-foreground mt-1">One-time setup fee of $199</p>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <ul className="space-y-3">
+                  <PricingFeature text="Everything in Professional, plus:" />
+                  <PricingFeature text="Fully Customizable Scripts" />
+                  <PricingFeature text="Enterprise Analytics & Reporting" />
+                  <PricingFeature text="Advanced Integrations" />
+                  <PricingFeature text="Premium AI Adaptive Dialogues" />
+                  <PricingFeature text="Secure & Compliant (GDPR & HIPAA)" />
+                  <PricingFeature text="Dedicated Account Manager" />
+                  <PricingFeature text="24/7 Premium Support" />
+                  <PricingFeature text="Custom Integrations" />
+                </ul>
+              </CardContent>
+              <CardFooter className="pt-6">
+                <a href="#waitlist" className="w-full">
+                  <Button size="lg" className="w-full">Start 14-Day Free Trial</Button>
+                </a>
+              </CardFooter>
+            </Card>
+          </div>
         </div>
 
         <div className="text-center mt-8 text-muted-foreground max-w-3xl mx-auto">
