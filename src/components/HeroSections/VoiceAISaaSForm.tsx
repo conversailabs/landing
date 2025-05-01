@@ -26,8 +26,6 @@ import countries from '@/data/countries.json';
 import { Phone } from 'lucide-react'; // Added import for Phone icon
 
 
-// const from_number = process.env.NEXT_PUBLIC_FROM_NUMBER||null;
-// const override_agent_id = process.env.NEXT_PUBLIC_OVERRIDE_AGENT_ID||null;
 
 // PhoneInput component for reusability
 interface PhoneInputProps {
@@ -202,10 +200,10 @@ export default function VoiceAISaaSForm() {
       return;
     }
     
-    try {
-      setIsLoading(true);
+    setIsLoading(true);
   
-      // Prepare the database operation
+    try {
+      // Prepare the promises but don't await them yet
       const dbPromise = supabase.from('voice_ai_leads').insert([
         {
           task: formData.task,
@@ -217,9 +215,9 @@ export default function VoiceAISaaSForm() {
         },
       ]);
   
-      // Prepare the API call
       const apiPromise = axios.post('/api/make-call', {
         to_number: formData.phone,
+        call_type: 'default',
         metadata: {
           task: formData.task,
           volume: formData.volume,
@@ -238,55 +236,113 @@ export default function VoiceAISaaSForm() {
         timeout: 15000 // 15 seconds timeout
       });
   
-      // Execute both operations in parallel
-      const [dbResult, apiResponse] = await Promise.all([dbPromise, apiPromise]);
-  
-      // Check for database error
-      if (dbResult.error) throw dbResult.error;
-  
-      // Display success message for database
-      if(!dbResult){
-      toast({
-        title: 'Submission Successful',
-        description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
-      });
-    }
-  
-      // Display success message for API call
-      if (apiResponse.status === 200 || apiResponse.status === 201) {
+      // Use Promise.allSettled to handle success/failure of each promise independently
+      const results = await Promise.allSettled([dbPromise, apiPromise]);
+      
+      // Handle DB result - index 0
+      if (results[0].status === 'fulfilled') {
+        const dbResult = results[0].value;
+        if (dbResult.error) {
+          toast({
+            title: 'Database Error',
+            description: dbResult.error.message || 'Failed to save your information',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Submission Successful',
+            description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
+          });
+        }
+      } else {
+        // DB promise was rejected
+        const error = results[0].reason;
+        let errorMessage = 'An unexpected error occurred';
+        
+        if (error.message) {
+          errorMessage = error.message;
+        }
+        
         toast({
-          title: 'Incoming AI call',
-          description: 'Watch your phone — your personalized verification is about to begin!',
-          duration: 5000,
+          title: 'Database Error',
+          description: errorMessage,
+          variant: 'destructive',
         });
       }
-  
-      // Reset form and UI state
-      resetform();
-      setStep(1);
-      setShowCustomForm(false);
-  
-    } catch (err: any) {
-      let errorMessage = 'An unexpected error occurred';
-  
-      if (err.code === 'ECONNABORTED') {
-        errorMessage = 'The call request is taking too long. Please try again later.';
-      } else if (err.response?.data?.error?.message) {
-        errorMessage = err.response.data.error.message;
-      } else if (err.message) {
-        errorMessage = err.message;
+      
+      // Handle API result - index 1
+      if (results[1].status === 'fulfilled') {
+        const apiResponse = results[1].value;
+        if (apiResponse.status === 200 || apiResponse.status === 201) {
+          toast({
+            title: 'Incoming AI call',
+            description: 'Watch your phone — your personalized verification is about to begin!',
+            duration: 5000,
+          });
+        } else {
+          toast({
+            title: 'Call Service Error',
+            description: 'Failed to initiate call. Please try again later.',
+            variant: 'destructive',
+          });
+        }
+      } else {
+        // API promise was rejected - use your exact error message processing
+        const error = results[1].reason;
+        let errorMessage = 'An unexpected error occurred';
+        
+        if (error.code === 'ECONNABORTED') {
+          errorMessage = 'The call request is taking too long. Please try again later.';
+        } else if (error.response?.data?.error?.message) {
+          errorMessage = error.response.data.error.message;
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+        
+        toast({
+          title: 'Call Service Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
       }
-  
+      
+      // Determine if we should reset the form based on operation results
+      const dbSucceeded = results[0].status === 'fulfilled' && !results[0].value.error;
+      const apiSucceeded = results[1].status === 'fulfilled' && 
+                          (results[1].value.status === 200 || results[1].value.status === 201);
+      
+      // Only reset if at least one operation succeeded
+      if (dbSucceeded || apiSucceeded) {
+        resetform();
+        setStep(1);
+        setShowCustomForm(false);
+      }
+      
+    } catch (err) {
+      // This catch block should rarely be hit since we're using Promise.allSettled
+      // But just in case there's some other unexpected error
+      const error = err as any;
+      let errorMessage = 'An unexpected error occurred';
+      
+      if (error.code === 'ECONNABORTED') {
+        errorMessage = 'The call request is taking too long. Please try again later.';
+      } else if (error.response?.data?.error?.message) {
+        errorMessage = error.response.data.error.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: 'Failed to complete operation',
+        title: 'Operation Failed',
         description: errorMessage,
         variant: 'destructive',
       });
+      console.error('Unexpected error in form submission:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const handleDemoCallSubmit = async () => {
     // Validate before submitting
     if (!validateDemoForm()) {
@@ -313,9 +369,8 @@ export default function VoiceAISaaSForm() {
       });
       
       const response = await axios.post('/api/make-call', {
-        // from_number:from_number,
         to_number: formData.demo_phone,
-        // override_agent_id:override_agent_id,
+        call_type: 'default',
         metadata: {
           name: formData.demo_name || 'Guest',
           number: formData.demo_phone,
@@ -548,7 +603,7 @@ export default function VoiceAISaaSForm() {
                 </Button>
 
                 <p className="text-xs text-center text-muted-foreground">
-                  You'll receive a call within a minute from +16812011361
+                  You'll receive a call within a minute.
                 </p>
               </div>
             </DialogFooter>

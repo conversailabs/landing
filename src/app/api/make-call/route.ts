@@ -4,6 +4,7 @@ import { checkRateLimits, logCall } from '@/lib/callRateLimiter';
 
 interface CallRequestBody {
   to_number: string;
+  call_type?: 'default' |  'ai';  // Define possible call types
   override_agent_version?: string;
   metadata?: Record<string, any>;
   retell_llm_dynamic_variables?: Record<string, any>;
@@ -14,38 +15,55 @@ export async function POST(req: NextRequest) {
     const body = (await req.json()) as CallRequestBody;
     const {
       to_number,
+      call_type = 'default',  // Default if not specified
       override_agent_version,
       metadata,
       retell_llm_dynamic_variables
     } = body;
 
     if (!to_number) {
-      return errorResponse('Destination phone number is required.', 400);
+      return errorResponse('Destination phone number is required.', 400, 'MISSING_PARAMETER');
     }
     
+    // Get from number from environment variables
     const from_number = process.env.FROM_NUMBER;
     if (!from_number) {
       console.error('Missing FROM_NUMBER environment variable.');
       return errorResponse('Internal configuration error.', 500, 'CONFIG_ERROR');
     }
     
-    const override_agent_id = process.env.OVERRIDE_AGENT_ID;
+    // Select the appropriate agent ID based on call type
+    let override_agent_id: string | undefined;
+    
+    switch (call_type) {
+      case 'ai':
+        override_agent_id = process.env.OVERRIDE_AGENT_ID_DEMO;
+        break;
+      case 'default':
+      default:
+        override_agent_id = process.env.OVERRIDE_AGENT_ID;
+        break;
+    }
+    
     if (!override_agent_id) {
-      console.error('Missing OVERRIDE_AGENT_ID environment variable.');
+      console.error(`Missing agent ID environment variable for call type: ${call_type}`);
       return errorResponse('Internal configuration error.', 500, 'CONFIG_ERROR');
     }
 
+    // Check rate limits
     const { allowed, reason } = await checkRateLimits(to_number);
     if (!allowed) {
       return errorResponse(`Rate limit exceeded: ${reason}`, 429, 'RATE_LIMIT_EXCEEDED');
     }
 
+    // Get API key
     const RETELL_API_KEY = process.env.RETELL_API_KEY;
     if (!RETELL_API_KEY) {
       console.error('Missing RETELL_API_KEY environment variable.');
       return errorResponse('Internal configuration error.', 500, 'CONFIG_ERROR');
     }
 
+    // Build payload
     const payload: Record<string, any> = {
       from_number,
       to_number,
@@ -55,6 +73,7 @@ export async function POST(req: NextRequest) {
       ...(retell_llm_dynamic_variables && { retell_llm_dynamic_variables })
     };
 
+    // Make call to Retell API
     const response = await axios.post(
       'https://api.retellai.com/v2/create-phone-call',
       payload,
@@ -65,6 +84,8 @@ export async function POST(req: NextRequest) {
         }
       }
     );
+    
+    // Log the call
     const name = metadata?.name || retell_llm_dynamic_variables?.name || null;
     await logCall(to_number, name);
 

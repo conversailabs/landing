@@ -1,4 +1,4 @@
-//  'use client';
+ 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import {
@@ -32,9 +32,6 @@ import {
 // Import the countries data
 import countries from '@/data/countries.json';
 
-// Define constants for API calls
-// const from_number = process.env.NEXT_PUBLIC_FROM_NUMBER || null;
-// const override_agent_id = process.env.NEXT_PUBLIC_OVERRIDE_AGENT_ID_DEMO || null;
 
 // Define audio file paths
 const AUDIO_FILES = {
@@ -460,10 +457,9 @@ const UseCasesSection: React.FC = () => {
       });
       
       // Make the actual API call
-      const response = await axios.post('/api/make-ai-call', {
-        // from_number: process.env.FROM_NUMBER,
+      const response = await axios.post('/api/make-call', {
         to_number: formattedPhone,
-        // override_agent_id: process.env.OVERRIDE_AGENT_ID_DEMO,
+        call_type: 'ai',
         metadata: {
           number: formattedPhone,
           useCase: currentUseCase.title,
