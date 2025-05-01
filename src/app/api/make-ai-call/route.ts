@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       return errorResponse('Internal configuration error.', 500, 'CONFIG_ERROR');
     }
     
-    const override_agent_id = process.env.OVERRIDE_AGENT_ID;
+    const override_agent_id = process.env.OVERRIDE_AGENT_ID_DEMO;
     if (!override_agent_id) {
       console.error('Missing OVERRIDE_AGENT_ID environment variable.');
       return errorResponse('Internal configuration error.', 500, 'CONFIG_ERROR');

@@ -26,8 +26,8 @@ import countries from '@/data/countries.json';
 import { Phone } from 'lucide-react'; // Added import for Phone icon
 
 
-const from_number = process.env.NEXT_PUBLIC_FROM_NUMBER!;
-const override_agent_id = process.env.NEXT_PUBLIC_OVERRIDE_AGENT_ID!;
+// const from_number = process.env.NEXT_PUBLIC_FROM_NUMBER||null;
+// const override_agent_id = process.env.NEXT_PUBLIC_OVERRIDE_AGENT_ID||null;
 
 // PhoneInput component for reusability
 interface PhoneInputProps {
@@ -190,6 +190,11 @@ export default function VoiceAISaaSForm() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  // reset form
+  const resetform=()=>{
+    setFormData({});
+    setErrors({});
+  }
 
   const handleSubmit = async () => {
     // Validate before submitting
@@ -199,8 +204,9 @@ export default function VoiceAISaaSForm() {
     
     try {
       setIsLoading(true);
-
-      const { error } = await supabase.from('voice_ai_leads').insert([
+  
+      // Prepare the database operation
+      const dbPromise = supabase.from('voice_ai_leads').insert([
         {
           task: formData.task,
           volume: formData.volume,
@@ -210,24 +216,10 @@ export default function VoiceAISaaSForm() {
           phone: formData.phone,
         },
       ]);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Submission Successful',
-        description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
-      });
-
-      // optionally reset form here
-      setFormData({});
-      setErrors({});
-      setStep(1);
-      setShowCustomForm(false);
-
-      const response = await axios.post('/api/make-call', {
-        from_number:from_number,
+  
+      // Prepare the API call
+      const apiPromise = axios.post('/api/make-call', {
         to_number: formData.phone,
-        override_agent_id:override_agent_id,
         metadata: {
           task: formData.task,
           volume: formData.volume,
@@ -239,22 +231,55 @@ export default function VoiceAISaaSForm() {
         retell_llm_dynamic_variables: {
           name: formData.name || 'Guest',
           number: formData.phone,
+          use_case: formData.task,
           current_time: new Date().toISOString(),
         }
       }, {
         timeout: 15000 // 15 seconds timeout
       });
-
-      // Show success toast on successful response
+  
+      // Execute both operations in parallel
+      const [dbResult, apiResponse] = await Promise.all([dbPromise, apiPromise]);
+  
+      // Check for database error
+      if (dbResult.error) throw dbResult.error;
+  
+      // Display success message for database
+      if(!dbResult){
       toast({
-        title: 'Incoming AI call',
-        description: 'Watch your phone — your personalized verification is about to begin!',
-        duration: 5000, 
+        title: 'Submission Successful',
+        description: 'Our team will reach out with a custom voice AI solution within 24 hours.',
       });
+    }
+  
+      // Display success message for API call
+      if (apiResponse.status === 200 || apiResponse.status === 201) {
+        toast({
+          title: 'Incoming AI call',
+          description: 'Watch your phone — your personalized verification is about to begin!',
+          duration: 5000,
+        });
+      }
+  
+      // Reset form and UI state
+      resetform();
+      setStep(1);
+      setShowCustomForm(false);
+  
     } catch (err: any) {
+      let errorMessage = 'An unexpected error occurred';
+  
+      if (err.code === 'ECONNABORTED') {
+        errorMessage = 'The call request is taking too long. Please try again later.';
+      } else if (err.response?.data?.error?.message) {
+        errorMessage = err.response.data.error.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+  
       toast({
-        title: 'Submission Failed',
-        description: err.message || 'Something went wrong. Please try again.',
+        title: 'Failed to complete operation',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -288,9 +313,9 @@ export default function VoiceAISaaSForm() {
       });
       
       const response = await axios.post('/api/make-call', {
-        from_number:from_number,
+        // from_number:from_number,
         to_number: formData.demo_phone,
-        override_agent_id:override_agent_id,
+        // override_agent_id:override_agent_id,
         metadata: {
           name: formData.demo_name || 'Guest',
           number: formData.demo_phone,
@@ -305,18 +330,19 @@ export default function VoiceAISaaSForm() {
       });
   
       // Only show success toast if we actually got a response (not timed out)
+      if(response.status===200 ||response.status===201){
       toast({
         title: 'Incoming AI call',
         description: 'Watch your phone — your personalized demo is about to begin!',
         duration: 5000, // Show for 5 seconds
       });
-      
+    }
       // Close the form after successful call initiation
       setShowDemoForm(false);
       
       // Reset form data
-      setFormData({});
-      setErrors({});
+      resetform();
+    
     } catch (error:any) {
       // Handle different error types
       let errorMessage = 'An unexpected error occurred';
