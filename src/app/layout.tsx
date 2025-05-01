@@ -77,12 +77,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Always include analytics in production, or when explicitly enabled in development
-  const enableAnalytics =
-    process.env.NODE_ENV === 'production' ||
-    process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'true' ||
-    (process.env.NODE_ENV === 'development' &&
-      process.env.NEXT_PUBLIC_ENABLE_ANALYTICS_IN_DEV === 'true');
+  const ENABLE_ANALYTICS = process.env.NEXT_PUBLIC_ENABLE_ANALYTICS?.toLowerCase() === 'true';
 
   return (
     <html lang="en">
@@ -90,14 +85,11 @@ export default function RootLayout({
         {children}
         <Toaster />
 
-        {/* Conditionally render analytics components */}
-        {enableAnalytics && (
+        {ENABLE_ANALYTICS && (
           <>
             <ClarityInit />
             <FacebookPixel />
-            {process.env.NEXT_PUBLIC_GTAG_ID && (
-              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GTAG_ID} />
-            )}
+            <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GTAG_ID!} />
           </>
         )}
       </body>
