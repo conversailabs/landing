@@ -17,7 +17,7 @@ import {
   ArrowRight,
   LucideIcon,
 } from 'lucide-react';
-import { getAudioUrl } from '../lib/supabaseClient';
+import { getAudioUrl } from '@/lib/supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { useToast } from '@/hooks/use-toast';

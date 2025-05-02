@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import VoiceAISaaSForm from '@/components/HeroSections/VoiceAISaaSForm';
+import VoiceAISaaSForm from '@/components/landingA/HeroSections/VoiceAISaaSForm';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface UseCase {
