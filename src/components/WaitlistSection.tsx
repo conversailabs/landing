@@ -151,7 +151,7 @@ if (!mounted) {
                 <Label>What should Voice AI handle? *</Label>
                 <Select
                   value={formData.task}
-                  onValueChange={(val) => handleInputChange('task', val)}
+                  onValueChange={(val) => handleInputChange('task', val)} 
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose task" />
