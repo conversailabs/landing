@@ -4,9 +4,10 @@ import { Card, CardContent } from '@/components/ui/card';
 const ProofSection: React.FC = () => {
   const metrics = [
     {
-      value: "2.1M+",
-      label: "Minutes Handled",
-      description: "Our AI has engaged in over 2.1 million minutes of conversation with prospects."
+      value: "200+",
+label: "Businesses",
+description: "Trusted by over 200 businesses to handle customer conversations efficiently.",
+
     },
     {
       value: "98%",
