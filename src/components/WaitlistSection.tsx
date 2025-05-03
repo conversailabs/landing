@@ -18,14 +18,25 @@ import { Check } from 'lucide-react';
 import countries from '@/data/countries.json';
 
 export default function WaitlistSection() {
+  const [mounted, setMounted] = useState(false);
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [step1Error, setStep1Error] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState(countries.find((c) => c.code === 'US'));
-
+  const [selectedCountry, setSelectedCountry] = useState(() => 
+    countries.find((c) => c.code === 'US')
+  );
   const { toast } = useToast();
 
+ // Handle hydration
+ useEffect(() => {
+  setMounted(true);
+}, []);
+
+// Don't render anything until mounted
+if (!mounted) {
+  return null;
+}
 
   // Transform countries data for consistency
   const transformedCountries = countries.map((country) => ({
@@ -140,7 +151,7 @@ export default function WaitlistSection() {
                 <Label>What should Voice AI handle? *</Label>
                 <Select
                   value={formData.task}
-                  onValueChange={(val) => handleInputChange('task', val)}
+                  onValueChange={(val) => handleInputChange('task', val)} 
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Choose task" />

@@ -1,4 +1,4 @@
-import './globals.css';
+import './globalsA.css';
 import type { Metadata } from 'next';
 import { Analytics as VercelAnalytics } from '@vercel/analytics/next';
 import { Geist, Geist_Mono } from 'next/font/google';

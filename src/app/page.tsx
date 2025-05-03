@@ -1,15 +1,15 @@
 'use client';
 
 import React from 'react';
-import Navbar from '@/components/Navbar';
-import HeroSection from '@/components/HeroSections/HeroSection';
-import UseCasesSection from '@/components/UseCasesSection';
-import KeyFeaturesSection from '@/components/KeyFeaturesSection';
-import PricingSection from '@/components/PricingSection';
-import FaqSection from '@/components/FaqSection';
-import Footer from '@/components/Footer';
+import Navbar from '@/components/landingA/Navbar';
+import HeroSection from '@/components/landingA/HeroSections/HeroSection';
+import UseCasesSection from '@/components/landingA/UseCasesSection';
+import KeyFeaturesSection from '@/components/landingA/KeyFeaturesSection';
+import PricingSection from '@/components/landingA/PricingSection';
+import FaqSection from '@/components/landingA/FaqSection';
+import Footer from '@/components/landingA/Footer';
 import WaitlistSection from '@/components/WaitlistSection';
-import AboutUsPage from '@/components/About';
+import AboutUsPage from '@/components/landingA/About';
 
 export default function Home() {
   return (

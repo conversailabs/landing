@@ -20,12 +20,12 @@ export default function FacebookPixel() {
       `}
       </Script>
       <noscript>
-        <img
-          height="1"
-          width="1"
-          src="https://www.facebook.com/tr?id=318697427687160&ev=PageView&noscript=1"
-        />
-      </noscript>
+  <img
+    height="1"
+    width="1"
+    src={`https://www.facebook.com/tr?id=${FB_PIXEL_ID}&ev=PageView&noscript=1`}
+  />
+</noscript>
     </>
   );
 }
