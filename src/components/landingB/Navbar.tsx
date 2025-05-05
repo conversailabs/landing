@@ -1,12 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Menu, Phone } from 'lucide-react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isHomePage, setIsHomePage] = useState(true);
+
+  // Check if we're on the home page
+  useEffect(() => {
+    // Check if the pathname is "/" or empty (home page)
+    const isHome = window.location.pathname === "/beta" || window.location.pathname === "";
+    setIsHomePage(isHome);
+  }, []);
+
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Prevent default navigation if we're already on home page
+    if (isHomePage) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault();
@@ -43,8 +59,12 @@ const Navbar = () => {
   return (
     <nav className="bg-background py-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 flex items-center justify-between">
-        {/* Logo section */}
-        <a href="/" className="flex items-center shrink-0">
+        {/* Logo section - with conditional navigation prevention */}
+        <a 
+          href="/" 
+          className="flex items-center shrink-0"
+          onClick={handleLogoClick}
+        >
           <img
             src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/sign/demo-audios/Group%201.png?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6InN0b3JhZ2UtdXJsLXNpZ25pbmcta2V5XzcyMzJmNjk4LTBiYTAtNGU4Yi1iZWMxLWM3NDgyYTM4Y2RjOSJ9.eyJ1cmwiOiJkZW1vLWF1ZGlvcy9Hcm91cCAxLnBuZyIsImlhdCI6MTc0NDYyOTQ0OCwiZXhwIjoxNzc2MTY1NDQ4fQ.ZSFXe6hPDW2MH74Ypv4bpnjvQ1DbJZPLq8NPM0reVxg"
             alt="ConversAILabs Logo"
