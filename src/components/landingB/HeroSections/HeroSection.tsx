@@ -301,7 +301,7 @@ const HeroSection = () => {
             <div className="relative mx-auto lg:mx-0 max-w-xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-8 animate-fade-in-down">
               Never Miss A Call —
-              <span className="gradient-text" style={{ fontSize: '0.8em' }}>24/7 AI Receptionist</span>
+              <span className="gradient-text" style={{ fontSize: '0.8em' }}> 24/7 AI Receptionist</span>
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground mb-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
