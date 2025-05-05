@@ -6,8 +6,11 @@ import VoiceAISaaSForm from '@/components/landingB/HeroSections/VoiceAISaaSForm'
 const HeroSection = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
-  
-  const [currentTranscript, setCurrentTranscript] = useState('');
+  const initialTranscript = [
+    "Agent: Hi there! This is Maria from Convers AI labs. May I know you name please?",
+    "User: Yeah. Sure. My name is Danu."
+  ].join('\n\n');
+  const [currentTranscript, setCurrentTranscript] = useState(initialTranscript);
   const [currentTime, setCurrentTime] = useState(0);
   const [loading, setLoading] = useState(true);
   const [progress, setProgress] = useState(0);
@@ -138,7 +141,15 @@ const HeroSection = () => {
 
   // Handle transcript timing and auto-scrolling based on currentTime
   useEffect(() => {
-    // Clear existing timers when play state changes
+   // If this is initial render and we have the default transcript, scroll to bottom
+   if (!isPlaying && currentTranscript === initialTranscript && transcriptContainerRef.current) {
+    setTimeout(() => {
+      if (transcriptContainerRef.current) {
+        transcriptContainerRef.current.scrollTop = transcriptContainerRef.current.scrollHeight;
+      }
+    }, 100);
+    return;
+  }
     timersRef.current.forEach(timer => clearTimeout(timer));
     timersRef.current = [];
     
@@ -238,11 +249,37 @@ const HeroSection = () => {
     }
   };
 
+  // Reset transcript when audio starts playing from the beginning
   const toggleAudio = () => {
     if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        // If we're at the beginning (or close to it), reset transcript to show all
+        if (currentTime < 100) {
+          const currentSegments = transcriptSegments.filter(segment => segment.time <= currentTime);
+          if (currentSegments.length > 0) {
+            const initialTranscript = currentSegments.map(seg => seg.text).join('\n\n');
+            setCurrentTranscript(initialTranscript);
+          }
+        }
+        
+        audioRef.current.play()
+          .catch(error => {
+            console.error("Error playing audio:", error);
+          });
+      }
       setIsPlaying(!isPlaying);
     }
   };
+  
+ // Handle auto-scrolling on initial load
+ useEffect(() => {
+  // Auto-scroll to the bottom after initial render
+  if (transcriptContainerRef.current) {
+    transcriptContainerRef.current.scrollTop = transcriptContainerRef.current.scrollHeight;
+  }
+}, []);
 
   // Format time function (mm:ss)
   const formatTime = (timeMs: number) => {
@@ -264,7 +301,7 @@ const HeroSection = () => {
             <div className="relative mx-auto lg:mx-0 max-w-xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-8 animate-fade-in-down">
               Never Miss A Call —
-              <span className="gradient-text" style={{ fontSize: '0.8em' }}>24/7 AI Receptionist</span>
+              <span className="gradient-text" style={{ fontSize: '0.8em' }}> 24/7 AI Receptionist</span>
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground mb-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>

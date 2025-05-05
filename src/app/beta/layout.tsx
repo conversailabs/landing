@@ -1,11 +1,11 @@
 // File: src/app/beta/layout.tsx
-import '../globalsB.css';                                  // your beta variant CSS
+import '../globalsA.css'; // Change to globalsA for the beta site
 import type { Metadata } from 'next';
 import { Analytics as VercelAnalytics } from '@vercel/analytics/next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from '@/components/ui/toaster';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import ClarityInit from '../../analytics/Clarity';        // note the relative path
+import ClarityInit from '../../analytics/Clarity';
 import FacebookPixel from '../../analytics/FacebookPixel';
 
 const geistSans = Geist({
@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'ConversAI Labs – Beta Variant',               // beta variant title
+  title: 'ConversAI Labs – Beta Variant',
   description:
     'ConversAI Labs automates your call workflows using advanced Voice AI—this is our beta variant build.',
   metadataBase: new URL('https://www.conversailabs.com/beta'),

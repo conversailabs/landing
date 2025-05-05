@@ -1,4 +1,5 @@
-import './globalsA.css';
+// File: src/app/layout.tsx
+import './globalsB.css'; // Change to globalsB for the default site
 import type { Metadata } from 'next';
 import { Analytics as VercelAnalytics } from '@vercel/analytics/next';
 import { Geist, Geist_Mono } from 'next/font/google';
