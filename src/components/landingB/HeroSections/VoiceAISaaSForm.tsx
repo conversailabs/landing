@@ -377,7 +377,7 @@ export default function VoiceAISaaSForm() {
           {step === 1 ? (
             <div className="space-y-4">
               <div>
-                <Label>What should Voice AI handle? *</Label>
+                <Label className="block mb-2">What should Voice AI handle? *</Label>
                 <Select onValueChange={(val) => handleInputChange('task', val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose task" />
@@ -391,7 +391,7 @@ export default function VoiceAISaaSForm() {
                 </Select>
               </div>
               <div>
-                <Label>Estimated Monthly Call Volume *</Label>
+                <Label className="block mb-2">Estimated Monthly Call Volume *</Label>
                 <Select onValueChange={(val) => handleInputChange('volume', val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select volume" />
@@ -404,7 +404,7 @@ export default function VoiceAISaaSForm() {
                 </Select>
               </div>
               <div>
-                <Label>Tell us more about your business (optional)</Label>
+                <Label className="block mb-2">Tell us more about your business (optional)</Label>
                 <Textarea onChange={(e) => handleInputChange('about', e.target.value)} />
               </div>
               {step1Error && <p className="text-red-500 text-sm">{step1Error}</p>}
