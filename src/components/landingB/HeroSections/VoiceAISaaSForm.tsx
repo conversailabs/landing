@@ -106,6 +106,34 @@ export default function VoiceAISaaSForm() {
 
   const { toast } = useToast();
 
+  // Add this effect hook to inject mobile-specific CSS for the dialog
+  useEffect(() => {
+    // Create a style element for mobile-only styles
+    const styleEl = document.createElement('style');
+    
+    styleEl.textContent = `
+      @media (max-width: 640px) {
+        .mobile-dialog-fix {
+          position: fixed !important;
+          top: 50px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          max-height: 90vh !important;
+          overflow-y: auto !important;
+          margin: 0 !important;
+        }
+      }
+    `;
+    
+    // Add the style to the document
+    document.head.appendChild(styleEl);
+    
+    // Clean up when component unmounts
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
+
   // Listen for the custom event to open the demo form
   useEffect(() => {
     const handleOpenDemoForm = () => {
@@ -334,27 +362,28 @@ export default function VoiceAISaaSForm() {
       </Button>
       
       <Button
-  size="lg"
-  variant="outline"
-  className="px-8 py-6 text-lg hover:scale-105 transition-transform border-primary"
-  onClick={() => setShowDemoForm(true)}
->
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    width="18" 
-    height="18" 
-    viewBox="0 0 24 24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round" 
-    strokeLinejoin="round" 
-    className="mr-2 text-primary fill-primary"
-  >
-    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-  </svg>
-  <span className="text-primary">Talk to Our Voice AI Agents</span>
-</Button>
+        size="lg"
+        variant="outline"
+        className="px-8 py-6 text-lg hover:scale-105 transition-transform border-primary"
+        onClick={() => setShowDemoForm(true)}
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          width="18" 
+          height="18" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          className="mr-2 text-primary fill-primary"
+        >
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+        <span className="text-primary">Talk to Our Voice AI Agents</span>
+      </Button>
+      
       {/* Custom Voice AI Form */}
       <Dialog
         open={showCustomForm}
@@ -464,7 +493,7 @@ export default function VoiceAISaaSForm() {
         </DialogContent>
       </Dialog>
 
-      {/* Demo Call Form */}
+      {/* Demo Call Form - with mobile positioning fix */}
       <Dialog
         open={showDemoForm}
         onOpenChange={(open) => {
@@ -476,7 +505,7 @@ export default function VoiceAISaaSForm() {
           }
         }}
       >
-        <DialogContent className="max-w-md w-full">
+        <DialogContent className="max-w-md w-full mobile-dialog-fix">
           <DialogHeader>
             <DialogTitle>Talk to Our Voice AI</DialogTitle>
           </DialogHeader>

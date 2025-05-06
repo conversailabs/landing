@@ -108,6 +108,34 @@ export default function VoiceAISaaSForm() {
 
   const { toast } = useToast();
 
+  // Add this effect hook to inject mobile-specific CSS for the dialog position
+  useEffect(() => {
+    // Create a style element for mobile-only styles
+    const styleEl = document.createElement('style');
+    
+    styleEl.textContent = `
+      @media (max-width: 640px) {
+        .mobile-dialog-fix {
+          position: fixed !important;
+          top: 10px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
+          max-height: 90vh !important;
+          overflow-y: auto !important;
+          margin: 0 !important;
+        }
+      }
+    `;
+    
+    // Add the style to the document
+    document.head.appendChild(styleEl);
+    
+    // Clean up when component unmounts
+    return () => {
+      document.head.removeChild(styleEl);
+    };
+  }, []);
+
   // Listen for the custom event to open the demo form
   useEffect(() => {
     const handleOpenDemoForm = () => {
@@ -558,7 +586,7 @@ export default function VoiceAISaaSForm() {
         </DialogContent>
       </Dialog>
 
-      {/* Demo Call Form */}
+      {/* Demo Call Form - with mobile positioning fix */}
       <Dialog
         open={showDemoForm}
         onOpenChange={(open) => {
@@ -570,7 +598,7 @@ export default function VoiceAISaaSForm() {
           }
         }}
       >
-        <DialogContent className="max-w-md w-full">
+        <DialogContent className="max-w-md w-full mobile-dialog-fix">
           <DialogHeader>
             <DialogTitle>Talk to Our Voice AI</DialogTitle>
           </DialogHeader>
