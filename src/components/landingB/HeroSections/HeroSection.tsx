@@ -54,37 +54,38 @@ const HeroSection = () => {
 
   // Calculate total duration
   const totalDuration = transcriptSegments[transcriptSegments.length - 1].time;
-
-  // Audio initialization with loading state
+  // ————— Safari-friendly audio init —————
   useEffect(() => {
-    audioRef.current = new Audio("https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios//CoversAILabs.mp3");
-    
-    // Set loading state
-    audioRef.current.addEventListener('loadeddata', () => {
-      setLoading(false);
-    });
-    
-    // Track current time in audio
+    const audio = new Audio();
+    audio.src = "https:/kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/CoversAILabs.mp3";
+    audio.preload = "metadata";
+    audio.crossOrigin = "anonymous";
+
+    const handleLoaded = () => setLoading(false);
     const handleTimeUpdate = () => {
-      if (audioRef.current) {
-        const currentMs = audioRef.current.currentTime * 1000;
-        setCurrentTime(currentMs);
-        setProgress((currentMs / totalDuration) * 100);
-      }
+      const currentMs = audio.currentTime * 1000;
+      setCurrentTime(currentMs);
+      setProgress((currentMs / totalDuration) * 100);
     };
-    
-    audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
-    
-    // Clean up audio when component unmounts
+
+    audio.addEventListener('loadeddata', handleLoaded);
+    audio.addEventListener('canplaythrough', handleLoaded);
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+
+    // force Safari to start loading
+    audio.load();
+
+    audioRef.current = audio;
+
     return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
-        audioRef.current.removeEventListener('loadeddata', () => {});
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
+      audio.removeEventListener('loadeddata', handleLoaded);
+      audio.removeEventListener('canplaythrough', handleLoaded);
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.pause();
+      audioRef.current = null;
     };
   }, [totalDuration]);
+  
 
   // Toggle mute function
   const toggleMute = useCallback(() => {

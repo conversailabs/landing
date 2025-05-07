@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from '@/components/ui/sheet';
 import { Menu, Phone } from 'lucide-react'; // Added Phone import
@@ -9,6 +9,22 @@ import { Menu, Phone } from 'lucide-react'; // Added Phone import
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+    const [isHomePage, setIsHomePage] = useState(true);
+  
+    // Check if we're on the home page
+    useEffect(() => {
+      // Check if the pathname is "/" or empty (home page)
+      const isHome = window.location.pathname === "/beta" || window.location.pathname === "";
+      setIsHomePage(isHome);
+    }, []);
+  
+    const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      // Prevent default navigation if we're already on home page
+      if (isHomePage) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, sectionId: string) => {
     e.preventDefault(); // Prevent default anchor behavior
@@ -54,7 +70,11 @@ const Navbar = () => {
   return (
     <nav className="bg-background py-4 shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <a href="/" className="flex items-center md:flex-1">
+        <a 
+        href="/beta" 
+        className="flex items-center md:flex-1"
+        onClick={handleLogoClick}
+        >
           <img
             src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/Group%201.png"
             alt="ConversAILabs Logo"
@@ -108,7 +128,8 @@ const Navbar = () => {
             <SheetContent side="right" className="md:hidden pt-0">
               {/* Keep SheetTitle but visually hide it for accessibility */}
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <div className="flex items-center mb-3 pt-4 mt-2 px-1">
+              {/* Reduced padding for the logo and company name in mobile view */}
+              <div className="flex items-center mb-1 pt-2 px-0">
                 <img
                   src="https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/Group%201.png"
                   alt="ConversAILabs Logo"
