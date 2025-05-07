@@ -57,7 +57,7 @@ const HeroSection = () => {
   // ————— Safari-friendly audio init —————
   useEffect(() => {
     const audio = new Audio();
-    audio.src = "https:/kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/CoversAILabs.mp3";
+    audio.src = "https://kbwtnhujnskomqwryfhy.supabase.co/storage/v1/object/public/demo-audios/CoversAILabs.mp3";
     audio.preload = "metadata";
     audio.crossOrigin = "anonymous";
 
